@@ -27,5 +27,8 @@ class User(
     var thumbnailImageUrl: String? = null,
 
     @Column(name = "is_system_admin", nullable = false)
-    val isSystemAdmin: Boolean = false
+    val isSystemAdmin: Boolean = false,
+
+    @Column(name = "google_id", unique = true)
+    var googleId: String? = null
 ) : BaseEntity()
