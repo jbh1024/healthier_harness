@@ -77,6 +77,19 @@ class AuthService(
         refreshTokenRepository.deleteByUserId(userId)
     }
 
+    @Transactional
+    fun changePassword(userId: Long, currentPassword: String, newPassword: String) {
+        val user = userRepository.findById(userId)
+            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+
+        if (!passwordEncoder.matches(currentPassword, user.passwordHash)) {
+            throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
+        }
+
+        validatePasswordFormat(newPassword)
+        user.passwordHash = passwordEncoder.encode(newPassword)
+    }
+
     private fun generateTokenPair(user: User): TokenResponse {
         val accessToken = jwtTokenProvider.generateAccessToken(user.id, user.email)
         val refreshTokenStr = jwtTokenProvider.generateRefreshToken(user.id)

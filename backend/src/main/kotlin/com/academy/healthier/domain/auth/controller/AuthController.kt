@@ -2,6 +2,7 @@ package com.academy.healthier.domain.auth.controller
 
 import com.academy.healthier.common.annotation.CurrentUser
 import com.academy.healthier.common.response.ApiResponse
+import com.academy.healthier.domain.auth.dto.ChangePasswordRequest
 import com.academy.healthier.domain.auth.dto.JoinAcademyRequest
 import com.academy.healthier.domain.auth.dto.LoginRequest
 import com.academy.healthier.domain.auth.dto.RefreshRequest
@@ -13,6 +14,7 @@ import com.academy.healthier.security.UserPrincipal
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -53,6 +55,15 @@ class AuthController(
         @Valid @RequestBody request: JoinAcademyRequest
     ): ApiResponse<Unit> {
         inviteCodeService.joinAcademy(user.userId, request.inviteCode)
+        return ApiResponse.ok()
+    }
+
+    @PutMapping("/password")
+    fun changePassword(
+        @CurrentUser user: UserPrincipal,
+        @Valid @RequestBody request: ChangePasswordRequest
+    ): ApiResponse<Unit> {
+        authService.changePassword(user.userId, request.currentPassword, request.newPassword)
         return ApiResponse.ok()
     }
 }

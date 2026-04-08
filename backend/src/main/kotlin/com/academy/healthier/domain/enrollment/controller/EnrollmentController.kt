@@ -68,4 +68,14 @@ class EnrollmentController(
     ): ApiResponse<List<EnrollmentResponse>> {
         return ApiResponse.ok(enrollmentService.getMyEnrollments(academyId, user.userId))
     }
+
+    @PutMapping("/enrollments/{enrollmentId}/cancel")
+    @AcademyAuth
+    fun cancelEnrollment(
+        @PathVariable academyId: Long,
+        @PathVariable enrollmentId: Long,
+        @CurrentUser user: UserPrincipal
+    ): ApiResponse<EnrollmentResponse> {
+        return ApiResponse.ok(enrollmentService.cancelEnrollment(enrollmentId, user.userId))
+    }
 }

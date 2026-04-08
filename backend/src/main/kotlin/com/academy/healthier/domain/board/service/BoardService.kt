@@ -135,4 +135,51 @@ class BoardService(
             createdAt = comment.createdAt
         )
     }
+
+    @Transactional
+    fun updatePost(postId: Long, userId: Long, request: CreateBoardPostRequest): BoardPostResponse {
+        val post = boardPostRepository.findByIdWithAuthor(postId)
+            ?: throw BusinessException(ErrorCode.INVALID_INPUT)
+        if (post.author.user.id != userId) throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        post.title = request.title
+        post.content = request.content
+        return BoardPostResponse.from(post)
+    }
+
+    @Transactional
+    fun deletePost(postId: Long, userId: Long, academyId: Long) {
+        val post = boardPostRepository.findByIdWithAuthor(postId)
+            ?: throw BusinessException(ErrorCode.INVALID_INPUT)
+        val member = academyMemberRepository.findByAcademyIdAndUserId(academyId, userId)
+            ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
+        // 본인 또는 학원 관리자만 삭제 가능
+        if (post.author.user.id != userId && member.role != com.academy.healthier.domain.membership.entity.MemberRole.ACADEMY_ADMIN) {
+            throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        }
+        boardPostRepository.delete(post)
+    }
+
+    @Transactional
+    fun updateComment(commentId: Long, userId: Long, content: String): CommentResponse {
+        val comment = boardCommentRepository.findById(commentId)
+            .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
+        if (comment.author.user.id != userId) throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        comment.content = content
+        return CommentResponse(
+            id = comment.id,
+            content = comment.content,
+            authorName = comment.author.user.name,
+            authorId = comment.author.id,
+            parentId = comment.parent?.id,
+            createdAt = comment.createdAt
+        )
+    }
+
+    @Transactional
+    fun deleteComment(commentId: Long, userId: Long) {
+        val comment = boardCommentRepository.findById(commentId)
+            .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
+        if (comment.author.user.id != userId) throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        boardCommentRepository.delete(comment)
+    }
 }

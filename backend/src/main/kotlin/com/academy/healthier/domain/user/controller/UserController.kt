@@ -2,14 +2,18 @@ package com.academy.healthier.domain.user.controller
 
 import com.academy.healthier.common.annotation.CurrentUser
 import com.academy.healthier.common.response.ApiResponse
+import com.academy.healthier.domain.user.dto.UpdateProfileRequest
 import com.academy.healthier.domain.user.dto.UserResponse
 import com.academy.healthier.domain.user.service.ProfileImageService
 import com.academy.healthier.domain.user.service.UserService
 import com.academy.healthier.security.UserPrincipal
 import org.springframework.http.HttpStatus
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -26,6 +30,14 @@ class UserController(
     @GetMapping("/me")
     fun getMyProfile(@CurrentUser user: UserPrincipal): ApiResponse<UserResponse> {
         return ApiResponse.ok(userService.getMyProfile(user.userId))
+    }
+
+    @PutMapping("/me")
+    fun updateProfile(
+        @CurrentUser user: UserPrincipal,
+        @Valid @RequestBody request: UpdateProfileRequest
+    ): ApiResponse<UserResponse> {
+        return ApiResponse.ok(userService.updateProfile(user.userId, request))
     }
 
     @PostMapping("/me/profile-image")
