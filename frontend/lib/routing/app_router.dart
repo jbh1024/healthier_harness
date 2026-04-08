@@ -18,6 +18,8 @@ import '../features/notice/presentation/screens/notice_detail_screen.dart';
 import '../features/notification/presentation/screens/notification_list_screen.dart';
 import '../features/notification/presentation/screens/notification_settings_screen.dart';
 import '../features/admin/presentation/screens/dashboard_screen.dart';
+import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/profile/presentation/screens/password_change_screen.dart';
 import 'route_names.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -131,6 +133,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/dashboard',
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/settings/password',
+        builder: (context, state) => const PasswordChangeScreen(),
       ),
     ],
   );
