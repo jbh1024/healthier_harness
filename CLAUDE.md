@@ -7,13 +7,14 @@
 
 ## Rule 문서
 
-| 구분         | 문서 위치                              |
-|------------|------------------------------------|
-| 프로젝트 아키텍쳐  | .claude/rules/architecture.md      |
-| 프로젝트 깃 컨벤션 | .claude/rules/git_convention.md    |
-| 테스트 가이드    | .claude/rules/test.md              |
+| 구분         | 문서 위치                           |
+|------------|---------------------------------|
+| 프로젝트 아키텍쳐  | .claude/rules/architecture.md   |
+| 프로젝트 깃 컨벤션 | .claude/rules/git_convention.md |
+| 테스트 가이드    | .claude/rules/test.md           |
+| 워크플로우      | .claude/rules/workflow.md       |
 | 정적분석       | .claude/rules/static_analyze.md |
-| 문서작성       | .claude/rules/doc_write.md         |
+| 문서작성       | .claude/rules/doc_write.md      |
 
 ## 기타 참고 문서
 
