@@ -15,6 +15,9 @@ import '../features/board/presentation/screens/board_detail_screen.dart';
 import '../features/board/presentation/screens/board_write_screen.dart';
 import '../features/notice/presentation/screens/notice_list_screen.dart';
 import '../features/notice/presentation/screens/notice_detail_screen.dart';
+import '../features/notification/presentation/screens/notification_list_screen.dart';
+import '../features/notification/presentation/screens/notification_settings_screen.dart';
+import '../features/admin/presentation/screens/dashboard_screen.dart';
 import 'route_names.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -116,6 +119,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           final noticeId = int.parse(state.pathParameters['noticeId']!);
           return NoticeDetailScreen(noticeId: noticeId);
         },
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationListScreen(),
+      ),
+      GoRoute(
+        path: '/settings/notifications',
+        builder: (context, state) => const NotificationSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/admin/dashboard',
+        builder: (context, state) => const DashboardScreen(),
       ),
     ],
   );
