@@ -6,6 +6,7 @@ import com.academy.healthier.common.response.PageResponse
 import com.academy.healthier.domain.course.entity.CourseStatus
 import com.academy.healthier.domain.course.entity.EnrollmentType
 import com.academy.healthier.domain.course.repository.CourseRepository
+import com.academy.healthier.domain.course.repository.CourseScheduleRepository
 import com.academy.healthier.domain.enrollment.dto.EnrollmentApprovalRequest
 import com.academy.healthier.domain.enrollment.dto.EnrollmentDetailResponse
 import com.academy.healthier.domain.enrollment.dto.EnrollmentResponse
@@ -16,12 +17,14 @@ import com.academy.healthier.domain.membership.repository.AcademyMemberRepositor
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 @Transactional(readOnly = true)
 class EnrollmentService(
     private val enrollmentRepository: EnrollmentRepository,
     private val courseRepository: CourseRepository,
+    private val courseScheduleRepository: CourseScheduleRepository,
     private val academyMemberRepository: AcademyMemberRepository,
     private val creditService: CreditService
 ) {
@@ -117,5 +120,66 @@ class EnrollmentService(
     fun getCourseEnrollments(courseId: Long, pageable: Pageable): PageResponse<EnrollmentDetailResponse> {
         val page = enrollmentRepository.findByCourseIdWithMember(courseId, pageable)
         return PageResponse.from(page) { EnrollmentDetailResponse.from(it) }
+    }
+
+    @Transactional
+    fun cancelEnrollment(enrollmentId: Long, userId: Long): EnrollmentResponse {
+        val enrollment = enrollmentRepository.findById(enrollmentId)
+            .orElseThrow { BusinessException(ErrorCode.ENROLLMENT_NOT_FOUND) }
+
+        if (enrollment.member.user.id != userId) {
+            throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        }
+
+        val wasApproved = enrollment.status == EnrollmentStatus.APPROVED
+        val wasPending = enrollment.status == EnrollmentStatus.PENDING
+        val wasWaitlisted = enrollment.status == EnrollmentStatus.WAITLISTED
+
+        if (!wasApproved && !wasPending && !wasWaitlisted) {
+            throw BusinessException(ErrorCode.INVALID_INPUT)
+        }
+
+        enrollment.status = EnrollmentStatus.CANCELLED
+
+        if (wasApproved) {
+            val course = courseRepository.findByIdForUpdate(enrollment.course.id)!!
+            course.decrementEnrollment()
+
+            // 횟수 복구: 수업 시작일 당일이 아닌 경우만
+            val schedules = courseScheduleRepository.findByCourseId(course.id)
+            val today = LocalDate.now()
+            val isStartDay = schedules.any { it.scheduleDate == today }
+
+            if (!isStartDay) {
+                creditService.restore(enrollment.member, enrollment.id)
+            }
+
+            // 대기열 자동 승급
+            promoteWaitlisted(course.id)
+        }
+
+        return EnrollmentResponse.from(enrollment)
+    }
+
+    private fun promoteWaitlisted(courseId: Long) {
+        val waitlisted = enrollmentRepository.findWaitlistedByCourseId(courseId)
+        if (waitlisted.isEmpty()) return
+
+        val next = waitlisted.first()
+        val course = courseRepository.findByIdForUpdate(courseId) ?: return
+
+        if (!course.isFull()) {
+            when (course.enrollmentType) {
+                EnrollmentType.AUTO_APPROVE -> {
+                    next.status = EnrollmentStatus.APPROVED
+                    course.incrementEnrollment()
+                    creditService.deduct(next.member, next.id)
+                }
+                EnrollmentType.MANUAL_APPROVE -> {
+                    next.status = EnrollmentStatus.PENDING
+                }
+            }
+            next.waitlistPosition = null
+        }
     }
 }

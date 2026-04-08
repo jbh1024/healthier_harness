@@ -8,6 +8,7 @@ import com.academy.healthier.domain.course.dto.CourseResponse
 import com.academy.healthier.domain.course.dto.CourseScheduleResponse
 import com.academy.healthier.domain.course.dto.CreateCourseRequest
 import com.academy.healthier.domain.course.dto.CreateScheduleRequest
+import com.academy.healthier.domain.course.dto.UpdateCourseRequest
 import com.academy.healthier.domain.course.entity.Course
 import com.academy.healthier.domain.course.entity.CourseSchedule
 import com.academy.healthier.domain.course.entity.CourseStatus
@@ -64,6 +65,34 @@ class CourseService(
     fun getCourseDetail(courseId: Long): CourseResponse {
         val course = courseRepository.findByIdWithInstructor(courseId)
             ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+        return CourseResponse.from(course)
+    }
+
+    @Transactional
+    fun updateCourse(courseId: Long, request: UpdateCourseRequest): CourseResponse {
+        val course = courseRepository.findByIdWithInstructor(courseId)
+            ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+        request.title?.let { course.title = it }
+        request.description?.let { course.description = it }
+        request.maxCapacity?.let { course.maxCapacity = it }
+        return CourseResponse.from(course)
+    }
+
+    @Transactional
+    fun deleteCourse(courseId: Long) {
+        val course = courseRepository.findById(courseId)
+            .orElseThrow { BusinessException(ErrorCode.COURSE_NOT_FOUND) }
+        if (course.currentEnrollment > 0) {
+            throw BusinessException(ErrorCode.INVALID_INPUT)
+        }
+        courseRepository.delete(course)
+    }
+
+    @Transactional
+    fun updateCourseStatus(courseId: Long, status: CourseStatus): CourseResponse {
+        val course = courseRepository.findByIdWithInstructor(courseId)
+            ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+        course.status = status
         return CourseResponse.from(course)
     }
 

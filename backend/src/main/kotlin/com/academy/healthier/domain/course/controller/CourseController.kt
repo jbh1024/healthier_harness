@@ -7,6 +7,7 @@ import com.academy.healthier.domain.course.dto.CourseResponse
 import com.academy.healthier.domain.course.dto.CourseScheduleResponse
 import com.academy.healthier.domain.course.dto.CreateCourseRequest
 import com.academy.healthier.domain.course.dto.CreateScheduleRequest
+import com.academy.healthier.domain.course.dto.UpdateCourseRequest
 import com.academy.healthier.domain.course.entity.CourseStatus
 import com.academy.healthier.domain.course.service.CourseService
 import com.academy.healthier.domain.membership.entity.MemberRole
@@ -16,9 +17,11 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -79,5 +82,35 @@ class CourseController(
         @RequestParam yearMonth: String
     ): ApiResponse<List<CourseScheduleResponse>> {
         return ApiResponse.ok(courseService.getCalendar(academyId, yearMonth))
+    }
+
+    @PutMapping("/{courseId}")
+    @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN, MemberRole.INSTRUCTOR])
+    fun updateCourse(
+        @PathVariable academyId: Long,
+        @PathVariable courseId: Long,
+        @Valid @RequestBody request: UpdateCourseRequest
+    ): ApiResponse<CourseResponse> {
+        return ApiResponse.ok(courseService.updateCourse(courseId, request))
+    }
+
+    @DeleteMapping("/{courseId}")
+    @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN, MemberRole.INSTRUCTOR])
+    fun deleteCourse(
+        @PathVariable academyId: Long,
+        @PathVariable courseId: Long
+    ): ApiResponse<Unit> {
+        courseService.deleteCourse(courseId)
+        return ApiResponse.ok()
+    }
+
+    @PutMapping("/{courseId}/status")
+    @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN, MemberRole.INSTRUCTOR])
+    fun updateCourseStatus(
+        @PathVariable academyId: Long,
+        @PathVariable courseId: Long,
+        @RequestParam status: CourseStatus
+    ): ApiResponse<CourseResponse> {
+        return ApiResponse.ok(courseService.updateCourseStatus(courseId, status))
     }
 }
