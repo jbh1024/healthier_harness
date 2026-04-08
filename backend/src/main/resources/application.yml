@@ -1,0 +1,28 @@
+server:
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: healthier
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+jwt:
+  secret: ${JWT_SECRET:aGVhbHRoaWVyLWFwcC1zZWNyZXQta2V5LWZvci1kZXZlbG9wbWVudC1vbmx5LTIwMjY=}
+  access-expiry: 3600000
+  refresh-expiry: 1209600000
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:./uploads}
+
+spring.servlet.multipart:
+  max-file-size: 10MB
+  max-request-size: 50MB
