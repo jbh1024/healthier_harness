@@ -121,6 +121,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           : const Text('로그인'),
                     ),
                     const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            '또는',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: Google Sign-In SDK 연동
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Google 로그인은 SDK 연동 후 사용 가능합니다')),
+                        );
+                      },
+                      icon: const Icon(Icons.g_mobiledata),
+                      label: const Text('Google로 로그인'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: WebAuthn API 연동
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Passkey 로그인은 WebAuthn 연동 후 사용 가능합니다')),
+                        );
+                      },
+                      icon: const Icon(Icons.fingerprint),
+                      label: const Text('Passkey로 로그인'),
+                    ),
+                    const SizedBox(height: 16),
                     TextButton(
                       onPressed: () => context.go('/signup'),
                       child: const Text('계정이 없으신가요? 회원가입'),
