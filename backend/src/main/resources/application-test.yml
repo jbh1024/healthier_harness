@@ -15,3 +15,7 @@ jwt:
   secret: dGVzdC1zZWNyZXQta2V5LWZvci1oZWFsdGhpZXItYXBwLXRlc3RpbmctcHVycG9zZS1vbmx5
   access-expiry: 3600000
   refresh-expiry: 1209600000
+
+cors:
+  allowed-origin-patterns:
+    - "*"

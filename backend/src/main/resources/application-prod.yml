@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    com.academy.healthier: INFO
+
+# 운영환경 CORS: 환경변수 CORS_ALLOWED_ORIGINS(쉼표 구분)로 명시적 화이트리스트 지정 필수
+# 예: CORS_ALLOWED_ORIGINS="https://healthier.com,https://app.healthier.com"
+# 빈 값이면 모든 origin 차단
+cors:
+  allow-credentials: true
+  max-age: 3600
