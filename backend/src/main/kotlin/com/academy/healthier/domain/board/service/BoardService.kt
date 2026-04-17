@@ -5,6 +5,7 @@ import com.academy.healthier.common.exception.ErrorCode
 import com.academy.healthier.common.response.PageResponse
 import com.academy.healthier.domain.academy.repository.AcademyRepository
 import com.academy.healthier.domain.board.dto.*
+import com.academy.healthier.domain.board.entity.BoardAttachment
 import com.academy.healthier.domain.board.entity.BoardComment
 import com.academy.healthier.domain.board.entity.BoardPost
 import com.academy.healthier.domain.board.entity.PostView
@@ -14,9 +15,12 @@ import com.academy.healthier.domain.board.repository.BoardPostRepository
 import com.academy.healthier.domain.board.repository.PostViewRepository
 import com.academy.healthier.domain.membership.repository.AcademyMemberRepository
 import com.academy.healthier.domain.user.repository.UserRepository
+import com.academy.healthier.infra.file.AttachmentValidator
+import com.academy.healthier.infra.file.FileStorageService
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional(readOnly = true)
@@ -27,8 +31,14 @@ class BoardService(
     private val postViewRepository: PostViewRepository,
     private val academyRepository: AcademyRepository,
     private val academyMemberRepository: AcademyMemberRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val fileStorageService: FileStorageService
 ) {
+
+    companion object {
+        private const val ATTACHMENT_DIR = "board"
+        private const val MAX_ATTACHMENTS_PER_POST = 5
+    }
 
     @Transactional
     fun createPost(academyId: Long, userId: Long, request: CreateBoardPostRequest): BoardPostResponse {
@@ -181,5 +191,67 @@ class BoardService(
             .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
         if (comment.author.user.id != userId) throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
         boardCommentRepository.delete(comment)
+    }
+
+    @Transactional
+    fun uploadAttachments(
+        postId: Long,
+        userId: Long,
+        files: List<MultipartFile>
+    ): List<AttachmentResponse> {
+        val post = boardPostRepository.findByIdWithAuthor(postId)
+            ?: throw BusinessException(ErrorCode.INVALID_INPUT)
+        if (post.author.user.id != userId) {
+            throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        }
+
+        val existingCount = boardAttachmentRepository.findByPostId(postId).size
+        if (existingCount + files.size > MAX_ATTACHMENTS_PER_POST) {
+            throw BusinessException(ErrorCode.ATTACHMENT_LIMIT_EXCEEDED)
+        }
+
+        files.forEach(AttachmentValidator::validate)
+
+        val saved = files.map { file ->
+            val stored = fileStorageService.store(file, ATTACHMENT_DIR)
+            boardAttachmentRepository.save(
+                BoardAttachment(
+                    post = post,
+                    originalFilename = stored.originalFilename,
+                    storedFilename = stored.storedFilename,
+                    filePath = stored.filePath,
+                    fileSize = stored.fileSize,
+                    contentType = stored.contentType
+                )
+            )
+        }
+
+        return saved.map {
+            AttachmentResponse(
+                id = it.id,
+                originalFilename = it.originalFilename,
+                fileSize = it.fileSize,
+                contentType = it.contentType
+            )
+        }
+    }
+
+    fun getAttachment(postId: Long, attachmentId: Long): BoardAttachment {
+        val attachment = boardAttachmentRepository.findById(attachmentId)
+            .orElseThrow { BusinessException(ErrorCode.ATTACHMENT_NOT_FOUND) }
+        if (attachment.post.id != postId) {
+            throw BusinessException(ErrorCode.ATTACHMENT_NOT_FOUND)
+        }
+        return attachment
+    }
+
+    @Transactional
+    fun deleteAttachment(postId: Long, attachmentId: Long, userId: Long) {
+        val attachment = getAttachment(postId, attachmentId)
+        if (attachment.post.author.user.id != userId) {
+            throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
+        }
+        fileStorageService.delete(attachment.filePath)
+        boardAttachmentRepository.delete(attachment)
     }
 }

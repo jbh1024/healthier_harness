@@ -30,6 +30,8 @@ class SecurityConfig(
                         "/auth/signup",
                         "/auth/login",
                         "/auth/refresh",
+                        "/auth/forgot-password",
+                        "/auth/reset-password",
                         "/auth/google",
                         "/auth/passkey/authenticate",
                         "/swagger-ui/**",

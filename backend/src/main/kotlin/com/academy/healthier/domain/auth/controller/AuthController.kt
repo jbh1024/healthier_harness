@@ -3,10 +3,12 @@ package com.academy.healthier.domain.auth.controller
 import com.academy.healthier.common.annotation.CurrentUser
 import com.academy.healthier.common.response.ApiResponse
 import com.academy.healthier.domain.auth.dto.ChangePasswordRequest
+import com.academy.healthier.domain.auth.dto.ForgotPasswordRequest
 import com.academy.healthier.domain.auth.dto.GoogleLoginRequest
 import com.academy.healthier.domain.auth.dto.JoinAcademyRequest
 import com.academy.healthier.domain.auth.dto.LoginRequest
 import com.academy.healthier.domain.auth.dto.RefreshRequest
+import com.academy.healthier.domain.auth.dto.ResetPasswordRequest
 import com.academy.healthier.domain.auth.dto.SignupRequest
 import com.academy.healthier.domain.auth.dto.TokenResponse
 import com.academy.healthier.domain.auth.service.AuthService
@@ -65,6 +67,18 @@ class AuthController(
         @Valid @RequestBody request: JoinAcademyRequest
     ): ApiResponse<Unit> {
         inviteCodeService.joinAcademy(user.userId, request.inviteCode)
+        return ApiResponse.ok()
+    }
+
+    @PostMapping("/forgot-password")
+    fun forgotPassword(@Valid @RequestBody request: ForgotPasswordRequest): ApiResponse<Unit> {
+        authService.requestPasswordReset(request.email)
+        return ApiResponse.ok()
+    }
+
+    @PostMapping("/reset-password")
+    fun resetPassword(@Valid @RequestBody request: ResetPasswordRequest): ApiResponse<Unit> {
+        authService.resetPassword(request.token, request.newPassword)
         return ApiResponse.ok()
     }
 

@@ -7,6 +7,7 @@ import com.academy.healthier.domain.membership.entity.MemberRole
 import com.academy.healthier.domain.notice.dto.CreateNoticeRequest
 import com.academy.healthier.domain.notice.dto.NoticeDetailResponse
 import com.academy.healthier.domain.notice.dto.NoticeResponse
+import com.academy.healthier.domain.notice.dto.UpdateNoticeRequest
 import com.academy.healthier.domain.notice.service.NoticeService
 import com.academy.healthier.security.AcademyAuth
 import com.academy.healthier.security.UserPrincipal
@@ -14,9 +15,11 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -56,5 +59,25 @@ class NoticeController(
         @CurrentUser user: UserPrincipal
     ): ApiResponse<NoticeDetailResponse> {
         return ApiResponse.ok(noticeService.getNoticeDetail(noticeId, user.userId))
+    }
+
+    @PutMapping("/{noticeId}")
+    @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
+    fun updateNotice(
+        @PathVariable academyId: Long,
+        @PathVariable noticeId: Long,
+        @Valid @RequestBody request: UpdateNoticeRequest
+    ): ApiResponse<NoticeResponse> {
+        return ApiResponse.ok(noticeService.updateNotice(academyId, noticeId, request))
+    }
+
+    @DeleteMapping("/{noticeId}")
+    @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
+    fun deleteNotice(
+        @PathVariable academyId: Long,
+        @PathVariable noticeId: Long
+    ): ApiResponse<Unit> {
+        noticeService.deleteNotice(academyId, noticeId)
+        return ApiResponse.ok()
     }
 }

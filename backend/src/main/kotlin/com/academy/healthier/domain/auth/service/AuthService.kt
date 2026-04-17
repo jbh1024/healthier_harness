@@ -6,24 +6,34 @@ import com.academy.healthier.domain.auth.dto.LoginRequest
 import com.academy.healthier.domain.auth.dto.RefreshRequest
 import com.academy.healthier.domain.auth.dto.SignupRequest
 import com.academy.healthier.domain.auth.dto.TokenResponse
+import com.academy.healthier.domain.auth.entity.PasswordResetToken
 import com.academy.healthier.domain.auth.entity.RefreshToken
+import com.academy.healthier.domain.auth.repository.PasswordResetTokenRepository
 import com.academy.healthier.domain.auth.repository.RefreshTokenRepository
 import com.academy.healthier.domain.user.entity.User
 import com.academy.healthier.domain.user.repository.UserRepository
+import com.academy.healthier.infra.messaging.EmailService
 import com.academy.healthier.security.jwt.JwtTokenProvider
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
 class AuthService(
     private val userRepository: UserRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
+    private val passwordResetTokenRepository: PasswordResetTokenRepository,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val emailService: EmailService
 ) {
+
+    companion object {
+        private const val RESET_TOKEN_EXPIRY_MINUTES = 30L
+    }
 
     @Transactional
     fun signup(request: SignupRequest): TokenResponse {
@@ -75,6 +85,53 @@ class AuthService(
     @Transactional
     fun logout(userId: Long) {
         refreshTokenRepository.deleteByUserId(userId)
+    }
+
+    @Transactional
+    fun requestPasswordReset(email: String) {
+        val user = userRepository.findByEmail(email) ?: return
+
+        passwordResetTokenRepository.deleteByUserId(user.id)
+
+        val token = UUID.randomUUID().toString().replace("-", "")
+        val expiresAt = LocalDateTime.now().plusMinutes(RESET_TOKEN_EXPIRY_MINUTES)
+        passwordResetTokenRepository.save(
+            PasswordResetToken(user = user, token = token, expiresAt = expiresAt)
+        )
+
+        emailService.send(
+            to = user.email,
+            subject = "[Healthier] 비밀번호 재설정 안내",
+            body = """
+                안녕하세요, ${user.name}님.
+
+                아래 토큰을 앱의 비밀번호 재설정 화면에 입력해 주세요.
+                토큰은 ${RESET_TOKEN_EXPIRY_MINUTES}분간 유효합니다.
+
+                재설정 토큰: $token
+
+                본인이 요청하지 않았다면 이 메일을 무시하시기 바랍니다.
+            """.trimIndent()
+        )
+    }
+
+    @Transactional
+    fun resetPassword(token: String, newPassword: String) {
+        val resetToken = passwordResetTokenRepository.findByToken(token)
+            ?: throw BusinessException(ErrorCode.INVALID_RESET_TOKEN)
+
+        if (resetToken.isUsed()) {
+            throw BusinessException(ErrorCode.RESET_TOKEN_ALREADY_USED)
+        }
+        if (resetToken.isExpired()) {
+            throw BusinessException(ErrorCode.RESET_TOKEN_EXPIRED)
+        }
+
+        validatePasswordFormat(newPassword)
+        resetToken.user.passwordHash = passwordEncoder.encode(newPassword)
+        resetToken.markUsed()
+
+        refreshTokenRepository.deleteByUserId(resetToken.user.id)
     }
 
     @Transactional

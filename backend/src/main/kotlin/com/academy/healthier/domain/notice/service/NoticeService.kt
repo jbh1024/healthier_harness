@@ -8,6 +8,7 @@ import com.academy.healthier.domain.membership.repository.AcademyMemberRepositor
 import com.academy.healthier.domain.notice.dto.CreateNoticeRequest
 import com.academy.healthier.domain.notice.dto.NoticeDetailResponse
 import com.academy.healthier.domain.notice.dto.NoticeResponse
+import com.academy.healthier.domain.notice.dto.UpdateNoticeRequest
 import com.academy.healthier.domain.notice.entity.Notice
 import com.academy.healthier.domain.notice.entity.NoticeView
 import com.academy.healthier.domain.notice.repository.NoticeRepository
@@ -74,5 +75,37 @@ class NoticeService(
             viewCount = notice.viewCount,
             createdAt = notice.createdAt
         )
+    }
+
+    @Transactional
+    fun updateNotice(
+        academyId: Long,
+        noticeId: Long,
+        request: UpdateNoticeRequest
+    ): NoticeResponse {
+        val notice = noticeRepository.findById(noticeId)
+            .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
+
+        if (notice.academy.id != academyId) {
+            throw BusinessException(ErrorCode.INVALID_INPUT)
+        }
+
+        notice.title = request.title
+        notice.content = request.content
+        notice.isImportant = request.isImportant
+
+        return NoticeResponse.from(notice)
+    }
+
+    @Transactional
+    fun deleteNotice(academyId: Long, noticeId: Long) {
+        val notice = noticeRepository.findById(noticeId)
+            .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
+
+        if (notice.academy.id != academyId) {
+            throw BusinessException(ErrorCode.INVALID_INPUT)
+        }
+
+        noticeRepository.delete(notice)
     }
 }
