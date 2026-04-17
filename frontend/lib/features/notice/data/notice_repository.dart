@@ -35,4 +35,53 @@ class NoticeRepository {
       throw ApiErrorHandler.handle(e);
     }
   }
+
+  Future<void> createNotice(
+    int academyId, {
+    required String title,
+    required String content,
+    required bool isImportant,
+  }) async {
+    try {
+      await _dio.post(
+        ApiConstants.notices(academyId),
+        data: {
+          'title': title,
+          'content': content,
+          'isImportant': isImportant,
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiErrorHandler.handle(e);
+    }
+  }
+
+  Future<void> updateNotice(
+    int academyId,
+    int noticeId, {
+    required String title,
+    required String content,
+    required bool isImportant,
+  }) async {
+    try {
+      await _dio.put(
+        ApiConstants.noticeDetail(academyId, noticeId),
+        data: {
+          'title': title,
+          'content': content,
+          'isImportant': isImportant,
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiErrorHandler.handle(e);
+    }
+  }
+
+  Future<void> deleteNotice(int academyId, int noticeId) async {
+    try {
+      await _dio.delete(ApiConstants.noticeDetail(academyId, noticeId));
+    } on DioException catch (e) {
+      throw ApiErrorHandler.handle(e);
+    }
+  }
 }

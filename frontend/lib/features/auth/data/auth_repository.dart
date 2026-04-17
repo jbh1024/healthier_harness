@@ -104,4 +104,32 @@ class AuthRepository {
   Future<bool> hasValidSession() async {
     return _storage.hasTokens();
   }
+
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await _dio.post(
+        ApiConstants.forgotPassword,
+        data: {'email': email},
+      );
+    } on DioException catch (e) {
+      throw ApiErrorHandler.handle(e);
+    }
+  }
+
+  Future<void> resetPassword({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio.post(
+        ApiConstants.resetPassword,
+        data: {
+          'token': token,
+          'newPassword': newPassword,
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiErrorHandler.handle(e);
+    }
+  }
 }
