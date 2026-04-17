@@ -160,6 +160,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     TextButton(
+                      onPressed: () => context.go('/forgot-password'),
+                      child: const Text('비밀번호를 잊으셨나요?'),
+                    ),
+                    TextButton(
                       onPressed: () => context.go('/signup'),
                       child: const Text('계정이 없으신가요? 회원가입'),
                     ),

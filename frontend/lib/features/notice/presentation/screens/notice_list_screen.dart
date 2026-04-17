@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../academy/presentation/providers/academy_provider.dart';
 import '../providers/notice_provider.dart';
 
 class NoticeListScreen extends ConsumerWidget {
@@ -12,9 +13,17 @@ class NoticeListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final noticesAsync = ref.watch(noticeListProvider);
+    final isAdmin =
+        ref.watch(currentAcademyProvider).role == 'ACADEMY_ADMIN';
 
     return Scaffold(
       appBar: AppBar(title: const Text('공지사항')),
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+              onPressed: () => context.push('/notices/write'),
+              child: const Icon(Icons.edit),
+            )
+          : null,
       body: noticesAsync.when(
         loading: () => const LoadingIndicator(),
         error: (e, _) => ErrorView(

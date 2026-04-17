@@ -9,6 +9,8 @@ class ApiConstants {
   static const String logout = '/auth/logout';
   static const String refresh = '/auth/refresh';
   static const String joinAcademy = '/auth/join-academy';
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
 
   // User
   static const String me = '/users/me';

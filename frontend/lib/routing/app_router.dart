@@ -5,7 +5,9 @@ import '../features/academy/presentation/screens/academy_join_screen.dart';
 import '../features/academy/presentation/screens/academy_select_screen.dart';
 import '../features/academy/presentation/screens/home_screen.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
+import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
 import '../features/course/presentation/screens/course_detail_screen.dart';
 import '../features/course/presentation/screens/course_list_screen.dart';
@@ -15,6 +17,7 @@ import '../features/board/presentation/screens/board_detail_screen.dart';
 import '../features/board/presentation/screens/board_write_screen.dart';
 import '../features/notice/presentation/screens/notice_list_screen.dart';
 import '../features/notice/presentation/screens/notice_detail_screen.dart';
+import '../features/notice/presentation/screens/notice_write_screen.dart';
 import '../features/notification/presentation/screens/notification_list_screen.dart';
 import '../features/notification/presentation/screens/notification_settings_screen.dart';
 import '../features/admin/presentation/screens/dashboard_screen.dart';
@@ -33,7 +36,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final isAuthRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup';
+          state.matchedLocation == '/signup' ||
+          state.matchedLocation == '/forgot-password' ||
+          state.matchedLocation == '/reset-password';
       final isAcademySelected = academyState.isSelected;
 
       // 미인증 → 로그인으로
@@ -66,6 +71,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: RouteNames.signup,
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: RouteNames.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        name: RouteNames.resetPassword,
+        builder: (context, state) => const ResetPasswordScreen(),
       ),
       GoRoute(
         path: '/academy-select',
@@ -117,10 +132,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NoticeListScreen(),
       ),
       GoRoute(
+        path: '/notices/write',
+        builder: (context, state) => const NoticeWriteScreen(),
+      ),
+      GoRoute(
         path: '/notices/:noticeId',
         builder: (context, state) {
           final noticeId = int.parse(state.pathParameters['noticeId']!);
           return NoticeDetailScreen(noticeId: noticeId);
+        },
+      ),
+      GoRoute(
+        path: '/notices/:noticeId/edit',
+        builder: (context, state) {
+          final noticeId = int.parse(state.pathParameters['noticeId']!);
+          return NoticeWriteScreen(noticeId: noticeId);
         },
       ),
       GoRoute(
