@@ -1,93 +1,52 @@
-class BoardPost {
-  final int id;
-  final String title;
-  final String authorName;
-  final bool isPinned;
-  final int viewCount;
-  final String createdAt;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const BoardPost({
-    required this.id,
-    required this.title,
-    required this.authorName,
-    required this.isPinned,
-    required this.viewCount,
-    required this.createdAt,
-  });
+part 'board_post.freezed.dart';
+part 'board_post.g.dart';
 
-  factory BoardPost.fromJson(Map<String, dynamic> json) => BoardPost(
-        id: json['id'] as int,
-        title: json['title'] as String,
-        authorName: json['authorName'] as String,
-        isPinned: json['isPinned'] as bool? ?? false,
-        viewCount: json['viewCount'] as int? ?? 0,
-        createdAt: json['createdAt'] as String,
-      );
+@freezed
+class BoardPost with _$BoardPost {
+  const factory BoardPost({
+    required int id,
+    required String title,
+    required String authorName,
+    @Default(false) bool isPinned,
+    @Default(0) int viewCount,
+    required String createdAt,
+  }) = _BoardPost;
+
+  factory BoardPost.fromJson(Map<String, dynamic> json) =>
+      _$BoardPostFromJson(json);
 }
 
-class BoardPostDetail {
-  final int id;
-  final String title;
-  final String content;
-  final String authorName;
-  final int authorId;
-  final bool isPinned;
-  final int viewCount;
-  final List<Comment> comments;
-  final String createdAt;
-
-  const BoardPostDetail({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.authorName,
-    required this.authorId,
-    required this.isPinned,
-    required this.viewCount,
-    required this.comments,
-    required this.createdAt,
-  });
+@freezed
+class BoardPostDetail with _$BoardPostDetail {
+  const factory BoardPostDetail({
+    required int id,
+    required String title,
+    required String content,
+    required String authorName,
+    required int authorId,
+    @Default(false) bool isPinned,
+    @Default(0) int viewCount,
+    @Default([]) List<Comment> comments,
+    required String createdAt,
+  }) = _BoardPostDetail;
 
   factory BoardPostDetail.fromJson(Map<String, dynamic> json) =>
-      BoardPostDetail(
-        id: json['id'] as int,
-        title: json['title'] as String,
-        content: json['content'] as String,
-        authorName: json['authorName'] as String,
-        authorId: json['authorId'] as int,
-        isPinned: json['isPinned'] as bool? ?? false,
-        viewCount: json['viewCount'] as int? ?? 0,
-        comments: (json['comments'] as List<dynamic>?)
-                ?.map((e) => Comment.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        createdAt: json['createdAt'] as String,
-      );
+      _$BoardPostDetailFromJson(json);
 }
 
-class Comment {
-  final int id;
-  final String content;
-  final String authorName;
-  final int authorId;
-  final int? parentId;
-  final String createdAt;
+@freezed
+class Comment with _$Comment {
+  const factory Comment({
+    required int id,
+    required String content,
+    required String authorName,
+    required int authorId,
+    int? parentId,
+    required String createdAt,
+  }) = _Comment;
 
-  const Comment({
-    required this.id,
-    required this.content,
-    required this.authorName,
-    required this.authorId,
-    this.parentId,
-    required this.createdAt,
-  });
-
-  factory Comment.fromJson(Map<String, dynamic> json) => Comment(
-        id: json['id'] as int,
-        content: json['content'] as String,
-        authorName: json['authorName'] as String,
-        authorId: json['authorId'] as int,
-        parentId: json['parentId'] as int?,
-        createdAt: json['createdAt'] as String,
-      );
+  factory Comment.fromJson(Map<String, dynamic> json) =>
+      _$CommentFromJson(json);
 }

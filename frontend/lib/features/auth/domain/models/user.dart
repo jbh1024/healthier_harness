@@ -1,53 +1,32 @@
-class User {
-  final int id;
-  final String email;
-  final String name;
-  final String? phone;
-  final String? profileImageUrl;
-  final String? thumbnailImageUrl;
-  final List<UserAcademy> academies;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const User({
-    required this.id,
-    required this.email,
-    required this.name,
-    this.phone,
-    this.profileImageUrl,
-    this.thumbnailImageUrl,
-    this.academies = const [],
-  });
+part 'user.freezed.dart';
+part 'user.g.dart';
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['id'] as int,
-        email: json['email'] as String,
-        name: json['name'] as String,
-        phone: json['phone'] as String?,
-        profileImageUrl: json['profileImageUrl'] as String?,
-        thumbnailImageUrl: json['thumbnailImageUrl'] as String?,
-        academies: (json['academies'] as List<dynamic>?)
-                ?.map((e) => UserAcademy.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-      );
+@freezed
+class User with _$User {
+  const factory User({
+    required int id,
+    required String email,
+    required String name,
+    String? phone,
+    String? profileImageUrl,
+    String? thumbnailImageUrl,
+    @Default([]) List<UserAcademy> academies,
+  }) = _User;
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
 
-class UserAcademy {
-  final int academyId;
-  final String academyName;
-  final String role;
-  final int remainingCredits;
+@freezed
+class UserAcademy with _$UserAcademy {
+  const factory UserAcademy({
+    required int academyId,
+    required String academyName,
+    required String role,
+    required int remainingCredits,
+  }) = _UserAcademy;
 
-  const UserAcademy({
-    required this.academyId,
-    required this.academyName,
-    required this.role,
-    required this.remainingCredits,
-  });
-
-  factory UserAcademy.fromJson(Map<String, dynamic> json) => UserAcademy(
-        academyId: json['academyId'] as int,
-        academyName: json['academyName'] as String,
-        role: json['role'] as String,
-        remainingCredits: json['remainingCredits'] as int,
-      );
+  factory UserAcademy.fromJson(Map<String, dynamic> json) =>
+      _$UserAcademyFromJson(json);
 }

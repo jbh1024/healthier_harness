@@ -1,60 +1,41 @@
-class Dashboard {
-  final int totalMembers;
-  final int totalCourses;
-  final int activeEnrollments;
-  final List<InstructorStat> instructorStats;
-  final List<StudentStat> studentStats;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Dashboard({
-    required this.totalMembers,
-    required this.totalCourses,
-    required this.activeEnrollments,
-    required this.instructorStats,
-    required this.studentStats,
-  });
+part 'dashboard.freezed.dart';
+part 'dashboard.g.dart';
 
-  factory Dashboard.fromJson(Map<String, dynamic> json) => Dashboard(
-        totalMembers: json['totalMembers'] as int,
-        totalCourses: json['totalCourses'] as int,
-        activeEnrollments: json['activeEnrollments'] as int,
-        instructorStats: (json['instructorStats'] as List<dynamic>)
-            .map((e) => InstructorStat.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        studentStats: (json['studentStats'] as List<dynamic>)
-            .map((e) => StudentStat.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+@freezed
+class Dashboard with _$Dashboard {
+  const factory Dashboard({
+    required int totalMembers,
+    required int totalCourses,
+    required int activeEnrollments,
+    required List<InstructorStat> instructorStats,
+    required List<StudentStat> studentStats,
+  }) = _Dashboard;
+
+  factory Dashboard.fromJson(Map<String, dynamic> json) =>
+      _$DashboardFromJson(json);
 }
 
-class InstructorStat {
-  final String instructorName;
-  final int courseCount;
-  final int totalEnrollments;
+@freezed
+class InstructorStat with _$InstructorStat {
+  const factory InstructorStat({
+    required String instructorName,
+    required int courseCount,
+    required int totalEnrollments,
+  }) = _InstructorStat;
 
-  const InstructorStat({
-    required this.instructorName,
-    required this.courseCount,
-    required this.totalEnrollments,
-  });
-
-  factory InstructorStat.fromJson(Map<String, dynamic> json) => InstructorStat(
-        instructorName: json['instructorName'] as String,
-        courseCount: json['courseCount'] as int,
-        totalEnrollments: json['totalEnrollments'] as int,
-      );
+  factory InstructorStat.fromJson(Map<String, dynamic> json) =>
+      _$InstructorStatFromJson(json);
 }
 
-class StudentStat {
-  final String studentName;
-  final int enrolledCourses;
+@freezed
+class StudentStat with _$StudentStat {
+  const factory StudentStat({
+    required String studentName,
+    required int enrolledCourses,
+  }) = _StudentStat;
 
-  const StudentStat({
-    required this.studentName,
-    required this.enrolledCourses,
-  });
-
-  factory StudentStat.fromJson(Map<String, dynamic> json) => StudentStat(
-        studentName: json['studentName'] as String,
-        enrolledCourses: json['enrolledCourses'] as int,
-      );
+  factory StudentStat.fromJson(Map<String, dynamic> json) =>
+      _$StudentStatFromJson(json);
 }

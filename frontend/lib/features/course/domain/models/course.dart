@@ -1,34 +1,25 @@
-class Course {
-  final int id;
-  final String title;
-  final String? description;
-  final String instructorName;
-  final int maxCapacity;
-  final int currentEnrollment;
-  final String enrollmentType;
-  final String status;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Course({
-    required this.id,
-    required this.title,
-    this.description,
-    required this.instructorName,
-    required this.maxCapacity,
-    required this.currentEnrollment,
-    required this.enrollmentType,
-    required this.status,
-  });
+part 'course.freezed.dart';
+part 'course.g.dart';
 
-  factory Course.fromJson(Map<String, dynamic> json) => Course(
-        id: json['id'] as int,
-        title: json['title'] as String,
-        description: json['description'] as String?,
-        instructorName: json['instructorName'] as String,
-        maxCapacity: json['maxCapacity'] as int,
-        currentEnrollment: json['currentEnrollment'] as int,
-        enrollmentType: json['enrollmentType'] as String,
-        status: json['status'] as String,
-      );
+@freezed
+class Course with _$Course {
+  const Course._();
+
+  const factory Course({
+    required int id,
+    required String title,
+    String? description,
+    required String instructorName,
+    required int maxCapacity,
+    required int currentEnrollment,
+    required String enrollmentType,
+    required String status,
+  }) = _Course;
+
+  factory Course.fromJson(Map<String, dynamic> json) =>
+      _$CourseFromJson(json);
 
   bool get isFull => currentEnrollment >= maxCapacity;
   int get remainingSpots => maxCapacity - currentEnrollment;

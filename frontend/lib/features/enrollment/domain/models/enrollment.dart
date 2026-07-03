@@ -1,25 +1,22 @@
-class Enrollment {
-  final int id;
-  final int courseId;
-  final String courseTitle;
-  final String status;
-  final int? waitlistPosition;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Enrollment({
-    required this.id,
-    required this.courseId,
-    required this.courseTitle,
-    required this.status,
-    this.waitlistPosition,
-  });
+part 'enrollment.freezed.dart';
+part 'enrollment.g.dart';
 
-  factory Enrollment.fromJson(Map<String, dynamic> json) => Enrollment(
-        id: json['id'] as int,
-        courseId: json['courseId'] as int,
-        courseTitle: json['courseTitle'] as String,
-        status: json['status'] as String,
-        waitlistPosition: json['waitlistPosition'] as int?,
-      );
+@freezed
+class Enrollment with _$Enrollment {
+  const Enrollment._();
+
+  const factory Enrollment({
+    required int id,
+    required int courseId,
+    required String courseTitle,
+    required String status,
+    int? waitlistPosition,
+  }) = _Enrollment;
+
+  factory Enrollment.fromJson(Map<String, dynamic> json) =>
+      _$EnrollmentFromJson(json);
 
   String get statusLabel {
     switch (status) {

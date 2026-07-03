@@ -1,14 +1,15 @@
-class TokenPair {
-  final String accessToken;
-  final String refreshToken;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const TokenPair({
-    required this.accessToken,
-    required this.refreshToken,
-  });
+part 'token_pair.freezed.dart';
+part 'token_pair.g.dart';
 
-  factory TokenPair.fromJson(Map<String, dynamic> json) => TokenPair(
-        accessToken: json['accessToken'] as String,
-        refreshToken: json['refreshToken'] as String,
-      );
+@freezed
+class TokenPair with _$TokenPair {
+  const factory TokenPair({
+    required String accessToken,
+    required String refreshToken,
+  }) = _TokenPair;
+
+  factory TokenPair.fromJson(Map<String, dynamic> json) =>
+      _$TokenPairFromJson(json);
 }

@@ -1,23 +1,18 @@
-class Academy {
-  final int id;
-  final String name;
-  final String? description;
-  final String? contactInfo;
-  final bool isActive;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Academy({
-    required this.id,
-    required this.name,
-    this.description,
-    this.contactInfo,
-    this.isActive = true,
-  });
+part 'academy.freezed.dart';
+part 'academy.g.dart';
 
-  factory Academy.fromJson(Map<String, dynamic> json) => Academy(
-        id: json['id'] as int,
-        name: json['name'] as String,
-        description: json['description'] as String?,
-        contactInfo: json['contactInfo'] as String?,
-        isActive: json['isActive'] as bool? ?? true,
-      );
+@freezed
+class Academy with _$Academy {
+  const factory Academy({
+    required int id,
+    required String name,
+    String? description,
+    String? contactInfo,
+    @Default(true) bool isActive,
+  }) = _Academy;
+
+  factory Academy.fromJson(Map<String, dynamic> json) =>
+      _$AcademyFromJson(json);
 }

@@ -1,56 +1,35 @@
-class Notice {
-  final int id;
-  final String title;
-  final String authorName;
-  final bool isImportant;
-  final int viewCount;
-  final String createdAt;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Notice({
-    required this.id,
-    required this.title,
-    required this.authorName,
-    required this.isImportant,
-    required this.viewCount,
-    required this.createdAt,
-  });
+part 'notice.freezed.dart';
+part 'notice.g.dart';
 
-  factory Notice.fromJson(Map<String, dynamic> json) => Notice(
-        id: json['id'] as int,
-        title: json['title'] as String,
-        authorName: json['authorName'] as String,
-        isImportant: json['isImportant'] as bool? ?? false,
-        viewCount: json['viewCount'] as int? ?? 0,
-        createdAt: json['createdAt'] as String,
-      );
+@freezed
+class Notice with _$Notice {
+  const factory Notice({
+    required int id,
+    required String title,
+    required String authorName,
+    @Default(false) bool isImportant,
+    @Default(0) int viewCount,
+    required String createdAt,
+  }) = _Notice;
+
+  factory Notice.fromJson(Map<String, dynamic> json) =>
+      _$NoticeFromJson(json);
 }
 
-class NoticeDetail {
-  final int id;
-  final String title;
-  final String content;
-  final String authorName;
-  final bool isImportant;
-  final int viewCount;
-  final String createdAt;
+@freezed
+class NoticeDetail with _$NoticeDetail {
+  const factory NoticeDetail({
+    required int id,
+    required String title,
+    required String content,
+    required String authorName,
+    @Default(false) bool isImportant,
+    @Default(0) int viewCount,
+    required String createdAt,
+  }) = _NoticeDetail;
 
-  const NoticeDetail({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.authorName,
-    required this.isImportant,
-    required this.viewCount,
-    required this.createdAt,
-  });
-
-  factory NoticeDetail.fromJson(Map<String, dynamic> json) => NoticeDetail(
-        id: json['id'] as int,
-        title: json['title'] as String,
-        content: json['content'] as String,
-        authorName: json['authorName'] as String,
-        isImportant: json['isImportant'] as bool? ?? false,
-        viewCount: json['viewCount'] as int? ?? 0,
-        createdAt: json['createdAt'] as String,
-      );
+  factory NoticeDetail.fromJson(Map<String, dynamic> json) =>
+      _$NoticeDetailFromJson(json);
 }

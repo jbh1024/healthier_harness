@@ -1,51 +1,33 @@
-class AppNotification {
-  final int id;
-  final String type;
-  final String title;
-  final String message;
-  final bool isRead;
-  final String? referenceType;
-  final int? referenceId;
-  final String createdAt;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const AppNotification({
-    required this.id,
-    required this.type,
-    required this.title,
-    required this.message,
-    required this.isRead,
-    this.referenceType,
-    this.referenceId,
-    required this.createdAt,
-  });
+part 'notification_model.freezed.dart';
+part 'notification_model.g.dart';
 
-  factory AppNotification.fromJson(Map<String, dynamic> json) => AppNotification(
-        id: json['id'] as int,
-        type: json['type'] as String,
-        title: json['title'] as String,
-        message: json['message'] as String,
-        isRead: json['isRead'] as bool,
-        referenceType: json['referenceType'] as String?,
-        referenceId: json['referenceId'] as int?,
-        createdAt: json['createdAt'] as String,
-      );
+@freezed
+class AppNotification with _$AppNotification {
+  const factory AppNotification({
+    required int id,
+    required String type,
+    required String title,
+    required String message,
+    required bool isRead,
+    String? referenceType,
+    int? referenceId,
+    required String createdAt,
+  }) = _AppNotification;
+
+  factory AppNotification.fromJson(Map<String, dynamic> json) =>
+      _$AppNotificationFromJson(json);
 }
 
-class NotificationSettings {
-  final bool enrollmentNotify;
-  final bool noticeNotify;
-  final bool commentNotify;
-
-  const NotificationSettings({
-    required this.enrollmentNotify,
-    required this.noticeNotify,
-    required this.commentNotify,
-  });
+@freezed
+class NotificationSettings with _$NotificationSettings {
+  const factory NotificationSettings({
+    required bool enrollmentNotify,
+    required bool noticeNotify,
+    required bool commentNotify,
+  }) = _NotificationSettings;
 
   factory NotificationSettings.fromJson(Map<String, dynamic> json) =>
-      NotificationSettings(
-        enrollmentNotify: json['enrollmentNotify'] as bool,
-        noticeNotify: json['noticeNotify'] as bool,
-        commentNotify: json['commentNotify'] as bool,
-      );
+      _$NotificationSettingsFromJson(json);
 }
