@@ -5,6 +5,8 @@ plugins {
     kotlin("plugin.spring") version "2.1.10"
     kotlin("plugin.jpa") version "2.1.10"
     kotlin("kapt") version "2.1.10"
+    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "com.academy"
@@ -66,4 +68,24 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+ktlint {
+    // 플러그인 기본 ktlint 엔진이 Kotlin 2.1 클래스패스와 충돌(KtTokens.HEADER_KEYWORD) → 1.5.0 명시
+    version.set("1.5.0")
+}
+
+detekt {
+    config.setFrom(files("config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
+// detekt 1.23.x는 Kotlin 2.0.21로 컴파일됨 — 프로젝트 Kotlin(2.1.10)이 클래스패스를 덮어쓰면
+// 버전 불일치로 실행이 거부되므로 detekt 전용 컨피규레이션의 Kotlin 버전을 고정
+configurations.matching { it.name == "detekt" }.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion("2.0.21")
+        }
+    }
 }
