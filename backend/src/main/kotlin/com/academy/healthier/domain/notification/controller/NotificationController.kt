@@ -20,47 +20,44 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping
 class NotificationController(
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
 ) {
-
     @GetMapping("/notifications")
     fun getNotifications(
         @CurrentUser user: UserPrincipal,
-        @PageableDefault(size = 20) pageable: Pageable
-    ): ApiResponse<PageResponse<NotificationResponse>> {
-        return ApiResponse.ok(notificationService.getNotifications(user.userId, pageable))
-    }
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): ApiResponse<PageResponse<NotificationResponse>> = ApiResponse.ok(notificationService.getNotifications(user.userId, pageable))
 
     @GetMapping("/notifications/unread-count")
-    fun getUnreadCount(@CurrentUser user: UserPrincipal): ApiResponse<Map<String, Long>> {
-        return ApiResponse.ok(mapOf("count" to notificationService.getUnreadCount(user.userId)))
-    }
+    fun getUnreadCount(
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<Map<String, Long>> = ApiResponse.ok(mapOf("count" to notificationService.getUnreadCount(user.userId)))
 
     @PutMapping("/notifications/{id}/read")
     fun markAsRead(
         @PathVariable id: Long,
-        @CurrentUser user: UserPrincipal
+        @CurrentUser user: UserPrincipal,
     ): ApiResponse<Unit> {
         notificationService.markAsRead(id, user.userId)
         return ApiResponse.ok()
     }
 
     @PutMapping("/notifications/read-all")
-    fun markAllAsRead(@CurrentUser user: UserPrincipal): ApiResponse<Unit> {
+    fun markAllAsRead(
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<Unit> {
         notificationService.markAllAsRead(user.userId)
         return ApiResponse.ok()
     }
 
     @GetMapping("/notification-settings")
-    fun getSettings(@CurrentUser user: UserPrincipal): ApiResponse<NotificationSettingResponse> {
-        return ApiResponse.ok(notificationService.getSettings(user.userId))
-    }
+    fun getSettings(
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<NotificationSettingResponse> = ApiResponse.ok(notificationService.getSettings(user.userId))
 
     @PutMapping("/notification-settings")
     fun updateSettings(
         @CurrentUser user: UserPrincipal,
-        @RequestBody request: UpdateNotificationSettingRequest
-    ): ApiResponse<NotificationSettingResponse> {
-        return ApiResponse.ok(notificationService.updateSettings(user.userId, request))
-    }
+        @RequestBody request: UpdateNotificationSettingRequest,
+    ): ApiResponse<NotificationSettingResponse> = ApiResponse.ok(notificationService.updateSettings(user.userId, request))
 }

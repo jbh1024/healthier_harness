@@ -10,18 +10,19 @@ data class CourseResponse(
     val maxCapacity: Int,
     val currentEnrollment: Int,
     val enrollmentType: String,
-    val status: String
+    val status: String,
 ) {
     companion object {
-        fun from(course: Course): CourseResponse = CourseResponse(
-            id = course.id,
-            title = course.title,
-            description = course.description,
-            instructorName = course.instructor.user.name,
-            maxCapacity = course.maxCapacity,
-            currentEnrollment = course.currentEnrollment,
-            enrollmentType = course.enrollmentType.name,
-            status = course.status.name
-        )
+        fun from(course: Course): CourseResponse =
+            CourseResponse(
+                id = course.id,
+                title = course.title,
+                description = course.description,
+                instructorName = course.instructor.user.name,
+                maxCapacity = course.maxCapacity,
+                currentEnrollment = course.currentEnrollment,
+                enrollmentType = course.enrollmentType.name,
+                status = course.status.name,
+            )
     }
 }

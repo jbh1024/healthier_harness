@@ -15,15 +15,12 @@ class BoardComment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     val post: BoardPost,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     val author: AcademyMember,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     val parent: BoardComment? = null,
-
     @Column(nullable = false, columnDefinition = "TEXT")
-    var content: String
+    var content: String,
 ) : BaseEntity()

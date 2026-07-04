@@ -8,11 +8,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.mock.web.MockMultipartFile
 
 class AttachmentValidatorTest {
-
     private fun file(
         name: String = "sample.pdf",
         contentType: String = "application/pdf",
-        content: ByteArray = byteArrayOf(1, 2, 3)
+        content: ByteArray = byteArrayOf(1, 2, 3),
     ) = MockMultipartFile("file", name, contentType, content)
 
     @Test
@@ -25,8 +24,12 @@ class AttachmentValidatorTest {
     @Test
     fun `허용 문서 파일은 검증 통과`() {
         AttachmentValidator.validate(file("doc.pdf", "application/pdf"))
-        AttachmentValidator.validate(file("doc.docx",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
+        AttachmentValidator.validate(
+            file(
+                "doc.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+        )
     }
 
     @Test
@@ -40,9 +43,13 @@ class AttachmentValidatorTest {
 
     @Test
     fun `10MB 초과 파일은 ATTACHMENT_TOO_LARGE 예외 발생`() {
-        val big = MockMultipartFile(
-            "file", "big.pdf", "application/pdf", ByteArray(10 * 1024 * 1024 + 1)
-        )
+        val big =
+            MockMultipartFile(
+                "file",
+                "big.pdf",
+                "application/pdf",
+                ByteArray(10 * 1024 * 1024 + 1),
+            )
         assertThatThrownBy { AttachmentValidator.validate(big) }
             .isInstanceOf(BusinessException::class.java)
             .extracting("errorCode")
@@ -74,9 +81,13 @@ class AttachmentValidatorTest {
 
     @Test
     fun `정확히 10MB 크기는 허용`() {
-        val tenMb = MockMultipartFile(
-            "file", "ok.pdf", "application/pdf", ByteArray(10 * 1024 * 1024)
-        )
+        val tenMb =
+            MockMultipartFile(
+                "file",
+                "ok.pdf",
+                "application/pdf",
+                ByteArray(10 * 1024 * 1024),
+            )
         AttachmentValidator.validate(tenMb)
         assertThat(tenMb.size).isEqualTo(10L * 1024 * 1024)
     }

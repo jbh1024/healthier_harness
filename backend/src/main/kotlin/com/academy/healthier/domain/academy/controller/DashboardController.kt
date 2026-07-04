@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/academies/{academyId}/dashboard")
 class DashboardController(
-    private val dashboardService: DashboardService
+    private val dashboardService: DashboardService,
 ) {
-
     @GetMapping
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
-    fun getDashboard(@PathVariable academyId: Long): ApiResponse<DashboardResponse> {
-        return ApiResponse.ok(dashboardService.getDashboard(academyId))
-    }
+    fun getDashboard(
+        @PathVariable academyId: Long,
+    ): ApiResponse<DashboardResponse> = ApiResponse.ok(dashboardService.getDashboard(academyId))
 }

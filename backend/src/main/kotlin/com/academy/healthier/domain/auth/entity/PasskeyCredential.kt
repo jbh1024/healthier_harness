@@ -18,24 +18,18 @@ class PasskeyCredential(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
-
     @Column(name = "credential_id", nullable = false, unique = true, length = 500)
     val credentialId: String,
-
     @Column(name = "public_key", nullable = false, columnDefinition = "TEXT")
     val publicKey: String,
-
     @Column(name = "sign_count", nullable = false)
     var signCount: Long = 0,
-
     @Column(name = "device_name", length = 100)
     val deviceName: String? = null,
-
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

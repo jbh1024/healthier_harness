@@ -7,12 +7,18 @@ import org.springframework.stereotype.Service
 class ConsoleEmailService : EmailService {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun send(to: String, subject: String, body: String) {
+    override fun send(
+        to: String,
+        subject: String,
+        body: String,
+    ) {
         log.info(
             "\n==================== EMAIL ====================\n" +
                 "TO: {}\nSUBJECT: {}\n-----------------------------------------------\n{}\n" +
                 "================================================",
-            to, subject, body
+            to,
+            subject,
+            body,
         )
     }
 }

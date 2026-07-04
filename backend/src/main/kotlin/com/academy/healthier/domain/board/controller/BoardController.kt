@@ -3,7 +3,12 @@ package com.academy.healthier.domain.board.controller
 import com.academy.healthier.common.annotation.CurrentUser
 import com.academy.healthier.common.response.ApiResponse
 import com.academy.healthier.common.response.PageResponse
-import com.academy.healthier.domain.board.dto.*
+import com.academy.healthier.domain.board.dto.AttachmentResponse
+import com.academy.healthier.domain.board.dto.BoardPostDetailResponse
+import com.academy.healthier.domain.board.dto.BoardPostResponse
+import com.academy.healthier.domain.board.dto.CommentResponse
+import com.academy.healthier.domain.board.dto.CreateBoardPostRequest
+import com.academy.healthier.domain.board.dto.CreateCommentRequest
 import com.academy.healthier.domain.board.service.BoardService
 import com.academy.healthier.security.AcademyAuth
 import com.academy.healthier.security.UserPrincipal
@@ -33,38 +38,31 @@ import java.nio.charset.StandardCharsets
 @RestController
 @RequestMapping("/academies/{academyId}/board")
 class BoardController(
-    private val boardService: BoardService
+    private val boardService: BoardService,
 ) {
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @AcademyAuth
     fun createPost(
         @PathVariable academyId: Long,
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateBoardPostRequest
-    ): ApiResponse<BoardPostResponse> {
-        return ApiResponse.ok(boardService.createPost(academyId, user.userId, request))
-    }
+        @Valid @RequestBody request: CreateBoardPostRequest,
+    ): ApiResponse<BoardPostResponse> = ApiResponse.ok(boardService.createPost(academyId, user.userId, request))
 
     @GetMapping
     @AcademyAuth
     fun getPosts(
         @PathVariable academyId: Long,
-        @PageableDefault(size = 20) pageable: Pageable
-    ): ApiResponse<PageResponse<BoardPostResponse>> {
-        return ApiResponse.ok(boardService.getPosts(academyId, pageable))
-    }
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): ApiResponse<PageResponse<BoardPostResponse>> = ApiResponse.ok(boardService.getPosts(academyId, pageable))
 
     @GetMapping("/{postId}")
     @AcademyAuth
     fun getPostDetail(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
-        @CurrentUser user: UserPrincipal
-    ): ApiResponse<BoardPostDetailResponse> {
-        return ApiResponse.ok(boardService.getPostDetail(postId, user.userId))
-    }
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<BoardPostDetailResponse> = ApiResponse.ok(boardService.getPostDetail(postId, user.userId))
 
     @PostMapping("/{postId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
@@ -73,10 +71,8 @@ class BoardController(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateCommentRequest
-    ): ApiResponse<CommentResponse> {
-        return ApiResponse.ok(boardService.createComment(postId, user.userId, academyId, request))
-    }
+        @Valid @RequestBody request: CreateCommentRequest,
+    ): ApiResponse<CommentResponse> = ApiResponse.ok(boardService.createComment(postId, user.userId, academyId, request))
 
     @PutMapping("/{postId}")
     @AcademyAuth
@@ -84,17 +80,15 @@ class BoardController(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateBoardPostRequest
-    ): ApiResponse<BoardPostResponse> {
-        return ApiResponse.ok(boardService.updatePost(postId, user.userId, request))
-    }
+        @Valid @RequestBody request: CreateBoardPostRequest,
+    ): ApiResponse<BoardPostResponse> = ApiResponse.ok(boardService.updatePost(postId, user.userId, request))
 
     @DeleteMapping("/{postId}")
     @AcademyAuth
     fun deletePost(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
-        @CurrentUser user: UserPrincipal
+        @CurrentUser user: UserPrincipal,
     ): ApiResponse<Unit> {
         boardService.deletePost(postId, user.userId, academyId)
         return ApiResponse.ok()
@@ -107,10 +101,8 @@ class BoardController(
         @PathVariable postId: Long,
         @PathVariable commentId: Long,
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateCommentRequest
-    ): ApiResponse<CommentResponse> {
-        return ApiResponse.ok(boardService.updateComment(commentId, user.userId, request.content))
-    }
+        @Valid @RequestBody request: CreateCommentRequest,
+    ): ApiResponse<CommentResponse> = ApiResponse.ok(boardService.updateComment(commentId, user.userId, request.content))
 
     @DeleteMapping("/{postId}/comments/{commentId}")
     @AcademyAuth
@@ -118,7 +110,7 @@ class BoardController(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
         @PathVariable commentId: Long,
-        @CurrentUser user: UserPrincipal
+        @CurrentUser user: UserPrincipal,
     ): ApiResponse<Unit> {
         boardService.deleteComment(commentId, user.userId)
         return ApiResponse.ok()
@@ -131,29 +123,29 @@ class BoardController(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
         @CurrentUser user: UserPrincipal,
-        @RequestPart("files") files: List<MultipartFile>
-    ): ApiResponse<List<AttachmentResponse>> {
-        return ApiResponse.ok(boardService.uploadAttachments(postId, user.userId, files))
-    }
+        @RequestPart("files") files: List<MultipartFile>,
+    ): ApiResponse<List<AttachmentResponse>> = ApiResponse.ok(boardService.uploadAttachments(postId, user.userId, files))
 
     @GetMapping("/{postId}/attachments/{attachmentId}")
     @AcademyAuth
     fun downloadAttachment(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
-        @PathVariable attachmentId: Long
+        @PathVariable attachmentId: Long,
     ): ResponseEntity<Resource> {
         val attachment = boardService.getAttachment(postId, attachmentId)
         val resource = FileSystemResource(attachment.filePath)
-        val filename = URLEncoder.encode(attachment.originalFilename, StandardCharsets.UTF_8)
-            .replace("+", "%20")
-        return ResponseEntity.ok()
+        val filename =
+            URLEncoder
+                .encode(attachment.originalFilename, StandardCharsets.UTF_8)
+                .replace("+", "%20")
+        return ResponseEntity
+            .ok()
             .contentType(MediaType.parseMediaType(attachment.contentType))
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename*=UTF-8''$filename"
-            )
-            .body(resource)
+                "attachment; filename*=UTF-8''$filename",
+            ).body(resource)
     }
 
     @DeleteMapping("/{postId}/attachments/{attachmentId}")
@@ -162,7 +154,7 @@ class BoardController(
         @PathVariable academyId: Long,
         @PathVariable postId: Long,
         @PathVariable attachmentId: Long,
-        @CurrentUser user: UserPrincipal
+        @CurrentUser user: UserPrincipal,
     ): ApiResponse<Unit> {
         boardService.deleteAttachment(postId, attachmentId, user.userId)
         return ApiResponse.ok()

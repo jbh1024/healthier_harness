@@ -18,44 +18,56 @@ import org.springframework.transaction.annotation.Transactional
 class AcademyService(
     private val academyRepository: AcademyRepository,
     private val academyMemberRepository: AcademyMemberRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
-
     @Transactional
     fun createAcademy(request: CreateAcademyRequest): AcademyResponse {
-        val adminUser = userRepository.findById(request.adminUserId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val adminUser =
+            userRepository
+                .findById(request.adminUserId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
-        val academy = academyRepository.save(
-            Academy(
-                name = request.name,
-                description = request.description,
-                contactInfo = request.contactInfo
+        val academy =
+            academyRepository.save(
+                Academy(
+                    name = request.name,
+                    description = request.description,
+                    contactInfo = request.contactInfo,
+                ),
             )
-        )
 
         academyMemberRepository.save(
             AcademyMember(
                 academy = academy,
                 user = adminUser,
-                role = MemberRole.ACADEMY_ADMIN
-            )
+                role = MemberRole.ACADEMY_ADMIN,
+            ),
         )
 
         return AcademyResponse.from(academy)
     }
 
-    fun getMyAcademies(userId: Long, isSystemAdmin: Boolean): List<AcademyResponse> {
+    fun getMyAcademies(
+        userId: Long,
+        isSystemAdmin: Boolean,
+    ): List<AcademyResponse> {
         if (isSystemAdmin) {
             return academyRepository.findAll().map { AcademyResponse.from(it) }
         }
-        return academyMemberRepository.findByUserIdWithAcademy(userId)
+        return academyMemberRepository
+            .findByUserIdWithAcademy(userId)
             .map { AcademyResponse.from(it.academy) }
     }
 
-    fun getAcademyDetail(academyId: Long, userId: Long, isSystemAdmin: Boolean): AcademyResponse {
-        val academy = academyRepository.findById(academyId)
-            .orElseThrow { BusinessException(ErrorCode.ACADEMY_NOT_FOUND) }
+    fun getAcademyDetail(
+        academyId: Long,
+        userId: Long,
+        isSystemAdmin: Boolean,
+    ): AcademyResponse {
+        val academy =
+            academyRepository
+                .findById(academyId)
+                .orElseThrow { BusinessException(ErrorCode.ACADEMY_NOT_FOUND) }
 
         if (!isSystemAdmin && !academyMemberRepository.existsByAcademyIdAndUserId(academyId, userId)) {
             throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)

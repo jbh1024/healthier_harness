@@ -9,18 +9,22 @@ data class UserResponse(
     val phone: String?,
     val profileImageUrl: String?,
     val thumbnailImageUrl: String?,
-    val academies: List<UserAcademyResponse>
+    val academies: List<UserAcademyResponse>,
 ) {
     companion object {
-        fun from(user: User, academies: List<UserAcademyResponse>): UserResponse = UserResponse(
-            id = user.id,
-            email = user.email,
-            name = user.name,
-            phone = user.phone,
-            profileImageUrl = user.profileImageUrl,
-            thumbnailImageUrl = user.thumbnailImageUrl,
-            academies = academies
-        )
+        fun from(
+            user: User,
+            academies: List<UserAcademyResponse>,
+        ): UserResponse =
+            UserResponse(
+                id = user.id,
+                email = user.email,
+                name = user.name,
+                phone = user.phone,
+                profileImageUrl = user.profileImageUrl,
+                thumbnailImageUrl = user.thumbnailImageUrl,
+                academies = academies,
+            )
     }
 }
 
@@ -28,5 +32,5 @@ data class UserAcademyResponse(
     val academyId: Long,
     val academyName: String,
     val role: String,
-    val remainingCredits: Int
+    val remainingCredits: Int,
 )

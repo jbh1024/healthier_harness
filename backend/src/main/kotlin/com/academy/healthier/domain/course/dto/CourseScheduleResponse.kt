@@ -11,17 +11,18 @@ data class CourseScheduleResponse(
     val instructorName: String,
     val scheduleDate: LocalDate,
     val startTime: LocalTime,
-    val endTime: LocalTime
+    val endTime: LocalTime,
 ) {
     companion object {
-        fun from(schedule: CourseSchedule): CourseScheduleResponse = CourseScheduleResponse(
-            id = schedule.id,
-            courseId = schedule.course.id,
-            courseTitle = schedule.course.title,
-            instructorName = schedule.course.instructor.user.name,
-            scheduleDate = schedule.scheduleDate,
-            startTime = schedule.startTime,
-            endTime = schedule.endTime
-        )
+        fun from(schedule: CourseSchedule): CourseScheduleResponse =
+            CourseScheduleResponse(
+                id = schedule.id,
+                courseId = schedule.course.id,
+                courseTitle = schedule.course.title,
+                instructorName = schedule.course.instructor.user.name,
+                scheduleDate = schedule.scheduleDate,
+                startTime = schedule.startTime,
+                endTime = schedule.endTime,
+            )
     }
 }

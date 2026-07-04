@@ -13,22 +13,27 @@ import org.springframework.stereotype.Component
 @Aspect
 @Component
 class AcademyAuthAspect(
-    private val academyMemberRepository: AcademyMemberRepository
+    private val academyMemberRepository: AcademyMemberRepository,
 ) {
-
     @Before("@annotation(academyAuth)")
-    fun checkAcademyAuth(joinPoint: JoinPoint, academyAuth: AcademyAuth) {
-        val principal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
-            ?: throw BusinessException(ErrorCode.UNAUTHORIZED)
+    fun checkAcademyAuth(
+        joinPoint: JoinPoint,
+        academyAuth: AcademyAuth,
+    ) {
+        val principal =
+            SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+                ?: throw BusinessException(ErrorCode.UNAUTHORIZED)
 
         // SYSTEM_ADMIN은 모든 학원 접근 가능
         if (principal.systemAdmin) return
 
-        val academyId = extractAcademyId(joinPoint)
-            ?: throw BusinessException(ErrorCode.INVALID_INPUT)
+        val academyId =
+            extractAcademyId(joinPoint)
+                ?: throw BusinessException(ErrorCode.INVALID_INPUT)
 
-        val member = academyMemberRepository.findByAcademyIdAndUserId(academyId, principal.userId)
-            ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
+        val member =
+            academyMemberRepository.findByAcademyIdAndUserId(academyId, principal.userId)
+                ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
 
         if (academyAuth.roles.isNotEmpty() && member.role !in academyAuth.roles) {
             throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)

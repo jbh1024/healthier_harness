@@ -9,17 +9,18 @@ data class BoardPostResponse(
     val authorName: String,
     val isPinned: Boolean,
     val viewCount: Int,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 ) {
     companion object {
-        fun from(post: BoardPost): BoardPostResponse = BoardPostResponse(
-            id = post.id,
-            title = post.title,
-            authorName = post.author.user.name,
-            isPinned = post.isPinned,
-            viewCount = post.viewCount,
-            createdAt = post.createdAt
-        )
+        fun from(post: BoardPost): BoardPostResponse =
+            BoardPostResponse(
+                id = post.id,
+                title = post.title,
+                authorName = post.author.user.name,
+                isPinned = post.isPinned,
+                viewCount = post.viewCount,
+                createdAt = post.createdAt,
+            )
     }
 }
 
@@ -33,7 +34,7 @@ data class BoardPostDetailResponse(
     val viewCount: Int,
     val comments: List<CommentResponse>,
     val attachments: List<AttachmentResponse>,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 )
 
 data class CommentResponse(
@@ -42,12 +43,12 @@ data class CommentResponse(
     val authorName: String,
     val authorId: Long,
     val parentId: Long?,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 )
 
 data class AttachmentResponse(
     val id: Long,
     val originalFilename: String,
     val fileSize: Long,
-    val contentType: String
+    val contentType: String,
 )

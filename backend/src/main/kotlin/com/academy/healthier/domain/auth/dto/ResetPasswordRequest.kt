@@ -6,8 +6,7 @@ import jakarta.validation.constraints.Size
 data class ResetPasswordRequest(
     @field:NotBlank(message = "토큰은 필수입니다")
     val token: String,
-
     @field:NotBlank(message = "비밀번호는 필수입니다")
     @field:Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다")
-    val newPassword: String
+    val newPassword: String,
 )

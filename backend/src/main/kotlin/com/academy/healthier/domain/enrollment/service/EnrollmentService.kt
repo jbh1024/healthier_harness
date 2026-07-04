@@ -26,22 +26,27 @@ class EnrollmentService(
     private val courseRepository: CourseRepository,
     private val courseScheduleRepository: CourseScheduleRepository,
     private val academyMemberRepository: AcademyMemberRepository,
-    private val creditService: CreditService
+    private val creditService: CreditService,
 ) {
-
     @Transactional
-    fun enroll(academyId: Long, courseId: Long, userId: Long): EnrollmentResponse {
+    fun enroll(
+        academyId: Long,
+        courseId: Long,
+        userId: Long,
+    ): EnrollmentResponse {
         // 비관적 락으로 Course 조회
-        val course = courseRepository.findByIdForUpdate(courseId)
-            ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+        val course =
+            courseRepository.findByIdForUpdate(courseId)
+                ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
 
         if (course.status != CourseStatus.OPEN) {
             throw BusinessException(ErrorCode.COURSE_NOT_OPEN)
         }
 
         // 멤버십 확인
-        val member = academyMemberRepository.findByAcademyIdAndUserId(academyId, userId)
-            ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
+        val member =
+            academyMemberRepository.findByAcademyIdAndUserId(academyId, userId)
+                ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
 
         // 중복 신청 체크
         if (enrollmentRepository.existsByCourseIdAndMemberId(courseId, member.id)) {
@@ -57,41 +62,49 @@ class EnrollmentService(
         if (course.isFull()) {
             // 대기열 등록
             val waitlistCount = enrollmentRepository.countByCourseIdAndStatus(courseId, EnrollmentStatus.WAITLISTED)
-            val enrollment = enrollmentRepository.save(
-                Enrollment(
-                    course = course,
-                    member = member,
-                    status = EnrollmentStatus.WAITLISTED,
-                    waitlistPosition = waitlistCount + 1
+            val enrollment =
+                enrollmentRepository.save(
+                    Enrollment(
+                        course = course,
+                        member = member,
+                        status = EnrollmentStatus.WAITLISTED,
+                        waitlistPosition = waitlistCount + 1,
+                    ),
                 )
-            )
             return EnrollmentResponse.from(enrollment)
         }
 
         // 수강신청 타입별 분기
-        val enrollment = when (course.enrollmentType) {
-            EnrollmentType.AUTO_APPROVE -> {
-                val e = enrollmentRepository.save(
-                    Enrollment(course = course, member = member, status = EnrollmentStatus.APPROVED)
-                )
-                course.incrementEnrollment()
-                creditService.deduct(member, e.id)
-                e
+        val enrollment =
+            when (course.enrollmentType) {
+                EnrollmentType.AUTO_APPROVE -> {
+                    val e =
+                        enrollmentRepository.save(
+                            Enrollment(course = course, member = member, status = EnrollmentStatus.APPROVED),
+                        )
+                    course.incrementEnrollment()
+                    creditService.deduct(member, e.id)
+                    e
+                }
+                EnrollmentType.MANUAL_APPROVE -> {
+                    enrollmentRepository.save(
+                        Enrollment(course = course, member = member, status = EnrollmentStatus.PENDING),
+                    )
+                }
             }
-            EnrollmentType.MANUAL_APPROVE -> {
-                enrollmentRepository.save(
-                    Enrollment(course = course, member = member, status = EnrollmentStatus.PENDING)
-                )
-            }
-        }
 
         return EnrollmentResponse.from(enrollment)
     }
 
     @Transactional
-    fun processApproval(enrollmentId: Long, request: EnrollmentApprovalRequest): EnrollmentResponse {
-        val enrollment = enrollmentRepository.findById(enrollmentId)
-            .orElseThrow { BusinessException(ErrorCode.ENROLLMENT_NOT_FOUND) }
+    fun processApproval(
+        enrollmentId: Long,
+        request: EnrollmentApprovalRequest,
+    ): EnrollmentResponse {
+        val enrollment =
+            enrollmentRepository
+                .findById(enrollmentId)
+                .orElseThrow { BusinessException(ErrorCode.ENROLLMENT_NOT_FOUND) }
 
         if (enrollment.status != EnrollmentStatus.PENDING) {
             throw BusinessException(ErrorCode.INVALID_INPUT)
@@ -109,23 +122,36 @@ class EnrollmentService(
         return EnrollmentResponse.from(enrollment)
     }
 
-    fun getMyEnrollments(academyId: Long, userId: Long): List<EnrollmentResponse> {
-        val member = academyMemberRepository.findByAcademyIdAndUserId(academyId, userId)
-            ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
+    fun getMyEnrollments(
+        academyId: Long,
+        userId: Long,
+    ): List<EnrollmentResponse> {
+        val member =
+            academyMemberRepository.findByAcademyIdAndUserId(academyId, userId)
+                ?: throw BusinessException(ErrorCode.NOT_ACADEMY_MEMBER)
 
-        return enrollmentRepository.findByMemberIdWithCourse(member.id)
+        return enrollmentRepository
+            .findByMemberIdWithCourse(member.id)
             .map { EnrollmentResponse.from(it) }
     }
 
-    fun getCourseEnrollments(courseId: Long, pageable: Pageable): PageResponse<EnrollmentDetailResponse> {
+    fun getCourseEnrollments(
+        courseId: Long,
+        pageable: Pageable,
+    ): PageResponse<EnrollmentDetailResponse> {
         val page = enrollmentRepository.findByCourseIdWithMember(courseId, pageable)
         return PageResponse.from(page) { EnrollmentDetailResponse.from(it) }
     }
 
     @Transactional
-    fun cancelEnrollment(enrollmentId: Long, userId: Long): EnrollmentResponse {
-        val enrollment = enrollmentRepository.findById(enrollmentId)
-            .orElseThrow { BusinessException(ErrorCode.ENROLLMENT_NOT_FOUND) }
+    fun cancelEnrollment(
+        enrollmentId: Long,
+        userId: Long,
+    ): EnrollmentResponse {
+        val enrollment =
+            enrollmentRepository
+                .findById(enrollmentId)
+                .orElseThrow { BusinessException(ErrorCode.ENROLLMENT_NOT_FOUND) }
 
         if (enrollment.member.user.id != userId) {
             throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)

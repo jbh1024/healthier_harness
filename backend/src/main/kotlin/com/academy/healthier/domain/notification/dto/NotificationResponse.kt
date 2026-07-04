@@ -11,18 +11,19 @@ data class NotificationResponse(
     val isRead: Boolean,
     val referenceType: String?,
     val referenceId: Long?,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 ) {
     companion object {
-        fun from(n: Notification): NotificationResponse = NotificationResponse(
-            id = n.id,
-            type = n.type.name,
-            title = n.title,
-            message = n.message,
-            isRead = n.isRead,
-            referenceType = n.referenceType,
-            referenceId = n.referenceId,
-            createdAt = n.createdAt
-        )
+        fun from(n: Notification): NotificationResponse =
+            NotificationResponse(
+                id = n.id,
+                type = n.type.name,
+                title = n.title,
+                message = n.message,
+                isRead = n.isRead,
+                referenceType = n.referenceType,
+                referenceId = n.referenceId,
+                createdAt = n.createdAt,
+            )
     }
 }

@@ -10,25 +10,18 @@ import jakarta.persistence.Table
 class User(
     @Column(nullable = false, unique = true)
     val email: String,
-
     @Column(name = "password_hash", nullable = false)
     var passwordHash: String,
-
     @Column(nullable = false, length = 50)
     var name: String,
-
     @Column(length = 20)
     var phone: String? = null,
-
     @Column(name = "profile_image_url", length = 500)
     var profileImageUrl: String? = null,
-
     @Column(name = "thumbnail_image_url", length = 500)
     var thumbnailImageUrl: String? = null,
-
     @Column(name = "is_system_admin", nullable = false)
     val isSystemAdmin: Boolean = false,
-
     @Column(name = "google_id", unique = true)
-    var googleId: String? = null
+    var googleId: String? = null,
 ) : BaseEntity()

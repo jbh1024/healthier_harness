@@ -5,5 +5,5 @@ import com.academy.healthier.domain.membership.entity.MemberRole
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class AcademyAuth(
-    val roles: Array<MemberRole> = []
+    val roles: Array<MemberRole> = [],
 )

@@ -14,30 +14,37 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class UserService(
     private val userRepository: UserRepository,
-    private val academyMemberRepository: AcademyMemberRepository
+    private val academyMemberRepository: AcademyMemberRepository,
 ) {
-
     fun getMyProfile(userId: Long): UserResponse {
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         val memberships = academyMemberRepository.findByUserIdWithAcademy(userId)
-        val academies = memberships.map { member ->
-            UserAcademyResponse(
-                academyId = member.academy.id,
-                academyName = member.academy.name,
-                role = member.role.name,
-                remainingCredits = member.remainingCredits
-            )
-        }
+        val academies =
+            memberships.map { member ->
+                UserAcademyResponse(
+                    academyId = member.academy.id,
+                    academyName = member.academy.name,
+                    role = member.role.name,
+                    remainingCredits = member.remainingCredits,
+                )
+            }
 
         return UserResponse.from(user, academies)
     }
 
     @Transactional
-    fun updateProfile(userId: Long, request: UpdateProfileRequest): UserResponse {
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+    fun updateProfile(
+        userId: Long,
+        request: UpdateProfileRequest,
+    ): UserResponse {
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
         request.name?.let { user.name = it }
         request.phone?.let { user.phone = it }
         return getMyProfile(userId)

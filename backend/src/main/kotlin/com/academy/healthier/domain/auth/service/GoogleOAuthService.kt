@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 class GoogleOAuthService(
     private val userRepository: UserRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -25,18 +25,24 @@ class GoogleOAuthService(
     fun loginWithGoogle(idToken: String): TokenResponse {
         val googleUserInfo = verifyGoogleIdToken(idToken)
 
-        val user = userRepository.findByGoogleId(googleUserInfo.googleId)
-            ?: throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
+        val user =
+            userRepository.findByGoogleId(googleUserInfo.googleId)
+                ?: throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
 
         return generateTokenPair(user.id, user.email)
     }
 
     @Transactional
-    fun linkGoogleAccount(userId: Long, idToken: String) {
+    fun linkGoogleAccount(
+        userId: Long,
+        idToken: String,
+    ) {
         val googleUserInfo = verifyGoogleIdToken(idToken)
 
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         val existing = userRepository.findByGoogleId(googleUserInfo.googleId)
         if (existing != null && existing.id != userId) {
@@ -48,8 +54,10 @@ class GoogleOAuthService(
 
     @Transactional
     fun unlinkGoogleAccount(userId: Long) {
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
         user.googleId = null
     }
 
@@ -60,11 +68,14 @@ class GoogleOAuthService(
         return GoogleUserInfo(
             googleId = idToken,
             email = "",
-            name = ""
+            name = "",
         )
     }
 
-    private fun generateTokenPair(userId: Long, email: String): TokenResponse {
+    private fun generateTokenPair(
+        userId: Long,
+        email: String,
+    ): TokenResponse {
         val accessToken = jwtTokenProvider.generateAccessToken(userId, email)
         val refreshTokenStr = jwtTokenProvider.generateRefreshToken(userId)
 
@@ -79,6 +90,6 @@ class GoogleOAuthService(
     private data class GoogleUserInfo(
         val googleId: String,
         val email: String,
-        val name: String
+        val name: String,
     )
 }

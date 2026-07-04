@@ -10,13 +10,10 @@ import jakarta.persistence.Table
 class Academy(
     @Column(nullable = false, length = 100)
     var name: String,
-
     @Column(columnDefinition = "TEXT")
     var description: String? = null,
-
     @Column(name = "contact_info", length = 255)
     var contactInfo: String? = null,
-
     @Column(name = "is_active", nullable = false)
-    var isActive: Boolean = true
+    var isActive: Boolean = true,
 ) : BaseEntity()

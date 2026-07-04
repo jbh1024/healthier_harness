@@ -24,24 +24,21 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/academies/{academyId}/members")
 class MembershipController(
-    private val membershipService: MembershipService
+    private val membershipService: MembershipService,
 ) {
-
     @GetMapping
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun getMembers(
         @PathVariable academyId: Long,
-        @PageableDefault(size = 20) pageable: Pageable
-    ): ApiResponse<PageResponse<MemberResponse>> {
-        return ApiResponse.ok(membershipService.getMembers(academyId, pageable))
-    }
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): ApiResponse<PageResponse<MemberResponse>> = ApiResponse.ok(membershipService.getMembers(academyId, pageable))
 
     @PutMapping("/{memberId}/role")
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun updateMemberRole(
         @PathVariable academyId: Long,
         @PathVariable memberId: Long,
-        @Valid @RequestBody request: UpdateMemberRoleRequest
+        @Valid @RequestBody request: UpdateMemberRoleRequest,
     ): ApiResponse<Unit> {
         membershipService.updateMemberRole(academyId, memberId, request.role)
         return ApiResponse.ok()
@@ -52,7 +49,7 @@ class MembershipController(
     fun removeMember(
         @PathVariable academyId: Long,
         @PathVariable memberId: Long,
-        @CurrentUser user: UserPrincipal
+        @CurrentUser user: UserPrincipal,
     ): ApiResponse<Unit> {
         membershipService.removeMember(academyId, memberId, user.userId)
         return ApiResponse.ok()
@@ -63,7 +60,7 @@ class MembershipController(
     fun chargeCredits(
         @PathVariable academyId: Long,
         @PathVariable memberId: Long,
-        @Valid @RequestBody request: ChargeCreditRequest
+        @Valid @RequestBody request: ChargeCreditRequest,
     ): ApiResponse<Unit> {
         membershipService.chargeCredits(academyId, memberId, request.amount)
         return ApiResponse.ok()

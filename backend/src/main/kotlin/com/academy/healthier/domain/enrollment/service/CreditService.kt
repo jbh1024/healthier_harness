@@ -8,30 +8,35 @@ import org.springframework.stereotype.Service
 
 @Service
 class CreditService(
-    private val creditHistoryRepository: CreditHistoryRepository
+    private val creditHistoryRepository: CreditHistoryRepository,
 ) {
-
-    fun deduct(member: AcademyMember, referenceId: Long) {
+    fun deduct(
+        member: AcademyMember,
+        referenceId: Long,
+    ) {
         member.remainingCredits--
         creditHistoryRepository.save(
             CreditHistory(
                 member = member,
                 changeAmount = -1,
                 reason = CreditReason.ENROLLMENT,
-                referenceId = referenceId
-            )
+                referenceId = referenceId,
+            ),
         )
     }
 
-    fun restore(member: AcademyMember, referenceId: Long) {
+    fun restore(
+        member: AcademyMember,
+        referenceId: Long,
+    ) {
         member.remainingCredits++
         creditHistoryRepository.save(
             CreditHistory(
                 member = member,
                 changeAmount = 1,
                 reason = CreditReason.CANCELLATION,
-                referenceId = referenceId
-            )
+                referenceId = referenceId,
+            ),
         )
     }
 }

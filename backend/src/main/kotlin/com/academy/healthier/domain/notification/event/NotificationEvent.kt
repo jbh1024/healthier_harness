@@ -9,5 +9,5 @@ data class NotificationEvent(
     val title: String,
     val message: String,
     val referenceType: String? = null,
-    val referenceId: Long? = null
+    val referenceId: Long? = null,
 )

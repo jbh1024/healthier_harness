@@ -23,39 +23,46 @@ class PasskeyService(
     private val passkeyCredentialRepository: PasskeyCredentialRepository,
     private val userRepository: UserRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    fun register(userId: Long, request: PasskeyRegisterRequest): PasskeyResponse {
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+    fun register(
+        userId: Long,
+        request: PasskeyRegisterRequest,
+    ): PasskeyResponse {
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         // TODO: 실제 WebAuthn 검증 로직 (java-webauthn-server)
         log.warn("Passkey 등록 stub: 실제 WebAuthn 검증 필요")
 
-        val credential = passkeyCredentialRepository.save(
-            PasskeyCredential(
-                user = user,
-                credentialId = request.credentialId,
-                publicKey = request.publicKey,
-                deviceName = request.deviceName
+        val credential =
+            passkeyCredentialRepository.save(
+                PasskeyCredential(
+                    user = user,
+                    credentialId = request.credentialId,
+                    publicKey = request.publicKey,
+                    deviceName = request.deviceName,
+                ),
             )
-        )
 
         return PasskeyResponse(
             id = credential.id,
             credentialId = credential.credentialId,
             deviceName = credential.deviceName,
-            createdAt = credential.createdAt.toString()
+            createdAt = credential.createdAt.toString(),
         )
     }
 
     @Transactional
     fun authenticate(request: PasskeyAuthenticateRequest): TokenResponse {
-        val credential = passkeyCredentialRepository.findByCredentialId(request.credentialId)
-            ?: throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
+        val credential =
+            passkeyCredentialRepository.findByCredentialId(request.credentialId)
+                ?: throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
 
         // TODO: 실제 WebAuthn 서명 검증 (public key로 signature 검증)
         log.warn("Passkey 인증 stub: 실제 WebAuthn 서명 검증 필요")
@@ -73,19 +80,21 @@ class PasskeyService(
         return TokenResponse(accessToken = accessToken, refreshToken = refreshTokenStr)
     }
 
-    fun getMyPasskeys(userId: Long): List<PasskeyResponse> {
-        return passkeyCredentialRepository.findByUserId(userId).map {
+    fun getMyPasskeys(userId: Long): List<PasskeyResponse> =
+        passkeyCredentialRepository.findByUserId(userId).map {
             PasskeyResponse(
                 id = it.id,
                 credentialId = it.credentialId,
                 deviceName = it.deviceName,
-                createdAt = it.createdAt.toString()
+                createdAt = it.createdAt.toString(),
             )
         }
-    }
 
     @Transactional
-    fun deletePasskey(passkeyId: Long, userId: Long) {
+    fun deletePasskey(
+        passkeyId: Long,
+        userId: Long,
+    ) {
         passkeyCredentialRepository.deleteByIdAndUserId(passkeyId, userId)
     }
 }

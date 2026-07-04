@@ -5,5 +5,5 @@ enum class EnrollmentStatus {
     APPROVED,
     REJECTED,
     CANCELLED,
-    WAITLISTED
+    WAITLISTED,
 }

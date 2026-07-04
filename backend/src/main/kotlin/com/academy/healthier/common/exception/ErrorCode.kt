@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 enum class ErrorCode(
     val status: HttpStatus,
     val code: String,
-    val message: String
+    val message: String,
 ) {
     // 공통
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "COMMON_001", "잘못된 입력입니다"),

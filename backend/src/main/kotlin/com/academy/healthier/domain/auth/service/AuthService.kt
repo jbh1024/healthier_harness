@@ -28,9 +28,8 @@ class AuthService(
     private val passwordResetTokenRepository: PasswordResetTokenRepository,
     private val jwtTokenProvider: JwtTokenProvider,
     private val passwordEncoder: PasswordEncoder,
-    private val emailService: EmailService
+    private val emailService: EmailService,
 ) {
-
     companion object {
         private const val RESET_TOKEN_EXPIRY_MINUTES = 30L
     }
@@ -43,22 +42,24 @@ class AuthService(
             throw BusinessException(ErrorCode.DUPLICATE_EMAIL)
         }
 
-        val user = userRepository.save(
-            User(
-                email = request.email,
-                passwordHash = passwordEncoder.encode(request.password),
-                name = request.name,
-                phone = request.phone
+        val user =
+            userRepository.save(
+                User(
+                    email = request.email,
+                    passwordHash = passwordEncoder.encode(request.password),
+                    name = request.name,
+                    phone = request.phone,
+                ),
             )
-        )
 
         return generateTokenPair(user)
     }
 
     @Transactional
     fun login(request: LoginRequest): TokenResponse {
-        val user = userRepository.findByEmail(request.email)
-            ?: throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
+        val user =
+            userRepository.findByEmail(request.email)
+                ?: throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
 
         if (!passwordEncoder.matches(request.password, user.passwordHash)) {
             throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
@@ -69,8 +70,9 @@ class AuthService(
 
     @Transactional
     fun refresh(request: RefreshRequest): TokenResponse {
-        val storedToken = refreshTokenRepository.findByToken(request.refreshToken)
-            ?: throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
+        val storedToken =
+            refreshTokenRepository.findByToken(request.refreshToken)
+                ?: throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
 
         if (storedToken.isExpired()) {
             refreshTokenRepository.delete(storedToken)
@@ -96,13 +98,14 @@ class AuthService(
         val token = UUID.randomUUID().toString().replace("-", "")
         val expiresAt = LocalDateTime.now().plusMinutes(RESET_TOKEN_EXPIRY_MINUTES)
         passwordResetTokenRepository.save(
-            PasswordResetToken(user = user, token = token, expiresAt = expiresAt)
+            PasswordResetToken(user = user, token = token, expiresAt = expiresAt),
         )
 
         emailService.send(
             to = user.email,
             subject = "[Healthier] 비밀번호 재설정 안내",
-            body = """
+            body =
+                """
                 안녕하세요, ${user.name}님.
 
                 아래 토큰을 앱의 비밀번호 재설정 화면에 입력해 주세요.
@@ -111,14 +114,18 @@ class AuthService(
                 재설정 토큰: $token
 
                 본인이 요청하지 않았다면 이 메일을 무시하시기 바랍니다.
-            """.trimIndent()
+                """.trimIndent(),
         )
     }
 
     @Transactional
-    fun resetPassword(token: String, newPassword: String) {
-        val resetToken = passwordResetTokenRepository.findByToken(token)
-            ?: throw BusinessException(ErrorCode.INVALID_RESET_TOKEN)
+    fun resetPassword(
+        token: String,
+        newPassword: String,
+    ) {
+        val resetToken =
+            passwordResetTokenRepository.findByToken(token)
+                ?: throw BusinessException(ErrorCode.INVALID_RESET_TOKEN)
 
         if (resetToken.isUsed()) {
             throw BusinessException(ErrorCode.RESET_TOKEN_ALREADY_USED)
@@ -135,9 +142,15 @@ class AuthService(
     }
 
     @Transactional
-    fun changePassword(userId: Long, currentPassword: String, newPassword: String) {
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+    fun changePassword(
+        userId: Long,
+        currentPassword: String,
+        newPassword: String,
+    ) {
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         if (!passwordEncoder.matches(currentPassword, user.passwordHash)) {
             throw BusinessException(ErrorCode.INVALID_CREDENTIALS)
@@ -151,21 +164,22 @@ class AuthService(
         val accessToken = jwtTokenProvider.generateAccessToken(user.id, user.email)
         val refreshTokenStr = jwtTokenProvider.generateRefreshToken(user.id)
 
-        val expiresAt = LocalDateTime.now().plusSeconds(
-            jwtTokenProvider.getRefreshTokenExpiryMs() / 1000
-        )
+        val expiresAt =
+            LocalDateTime.now().plusSeconds(
+                jwtTokenProvider.getRefreshTokenExpiryMs() / 1000,
+            )
 
         refreshTokenRepository.save(
             RefreshToken(
                 user = user,
                 token = refreshTokenStr,
-                expiresAt = expiresAt
-            )
+                expiresAt = expiresAt,
+            ),
         )
 
         return TokenResponse(
             accessToken = accessToken,
-            refreshToken = refreshTokenStr
+            refreshToken = refreshTokenStr,
         )
     }
 

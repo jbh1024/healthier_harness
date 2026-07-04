@@ -21,7 +21,6 @@ import org.mockito.kotlin.whenever
 
 @ExtendWith(MockitoExtension::class)
 class CreditServiceTest {
-
     @Mock
     private lateinit var creditHistoryRepository: CreditHistoryRepository
 
@@ -34,12 +33,13 @@ class CreditServiceTest {
     fun setUp() {
         val academy = Academy(name = "테스트학원")
         val user = User(email = "student@test.com", passwordHash = "hash", name = "학생")
-        member = AcademyMember(
-            academy = academy,
-            user = user,
-            role = MemberRole.STUDENT,
-            remainingCredits = 5
-        )
+        member =
+            AcademyMember(
+                academy = academy,
+                user = user,
+                role = MemberRole.STUDENT,
+                remainingCredits = 5,
+            )
         whenever(creditHistoryRepository.save(any<CreditHistory>())).thenAnswer { it.arguments[0] }
     }
 

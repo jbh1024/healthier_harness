@@ -8,16 +8,20 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 
 interface NoticeRepository : JpaRepository<Notice, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT n FROM Notice n
         JOIN FETCH n.author a
         JOIN FETCH a.user
         WHERE n.academy.id = :academyId
         ORDER BY n.isImportant DESC, n.createdAt DESC
     """,
-        countQuery = "SELECT COUNT(n) FROM Notice n WHERE n.academy.id = :academyId")
-    fun findByAcademyId(academyId: Long, pageable: Pageable): Page<Notice>
+        countQuery = "SELECT COUNT(n) FROM Notice n WHERE n.academy.id = :academyId",
+    )
+    fun findByAcademyId(
+        academyId: Long,
+        pageable: Pageable,
+    ): Page<Notice>
 
     @Query("SELECT n FROM Notice n JOIN FETCH n.author a JOIN FETCH a.user WHERE n.id = :noticeId")
     fun findByIdWithAuthor(noticeId: Long): Notice?

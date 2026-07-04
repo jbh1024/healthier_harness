@@ -8,13 +8,12 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class InviteCodeTest {
-
     private fun sampleCode(
         maxUses: Int? = null,
         unlimited: Boolean = false,
         expiresAt: LocalDateTime? = null,
         isActive: Boolean = true,
-        currentUses: Int = 0
+        currentUses: Int = 0,
     ): InviteCode {
         val academy = Academy(name = "테스트학원")
         val user = User(email = "admin@test.com", passwordHash = "hash", name = "관리자")
@@ -28,7 +27,7 @@ class InviteCodeTest {
             unlimited = unlimited,
             expiresAt = expiresAt,
             isActive = isActive,
-            createdBy = user
+            createdBy = user,
         )
     }
 

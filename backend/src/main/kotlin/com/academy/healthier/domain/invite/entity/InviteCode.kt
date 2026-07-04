@@ -20,37 +20,27 @@ class InviteCode(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "academy_id", nullable = false)
     val academy: Academy,
-
     @Column(nullable = false, unique = true, length = 20)
     val code: String,
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     val role: MemberRole,
-
     @Column(name = "granted_credits", nullable = false)
     val grantedCredits: Int = 0,
-
     @Column(name = "max_uses")
     val maxUses: Int? = null,
-
     @Column(name = "current_uses", nullable = false)
     var currentUses: Int = 0,
-
     @Column(nullable = false)
     val unlimited: Boolean = false,
-
     @Column(name = "expires_at")
     val expiresAt: LocalDateTime? = null,
-
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
-    val createdBy: User
+    val createdBy: User,
 ) : BaseEntity() {
-
     fun isUsable(): Boolean {
         if (!isActive) return false
         if (expiresAt != null && LocalDateTime.now().isAfter(expiresAt)) return false

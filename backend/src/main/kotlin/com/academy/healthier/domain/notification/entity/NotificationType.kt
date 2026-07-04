@@ -7,5 +7,5 @@ enum class NotificationType {
     ENROLLMENT_CANCELLED,
     VACANCY_AVAILABLE,
     NOTICE_CREATED,
-    COMMENT_CREATED
+    COMMENT_CREATED,
 }

@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 
 interface NotificationRepository : JpaRepository<Notification, Long> {
-
-    fun findByRecipientIdOrderByCreatedAtDesc(recipientId: Long, pageable: Pageable): Page<Notification>
+    fun findByRecipientIdOrderByCreatedAtDesc(
+        recipientId: Long,
+        pageable: Pageable,
+    ): Page<Notification>
 
     fun countByRecipientIdAndIsReadFalse(recipientId: Long): Long
 

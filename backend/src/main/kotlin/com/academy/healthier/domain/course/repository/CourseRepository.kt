@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 
 interface CourseRepository : JpaRepository<Course, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT c FROM Course c
         JOIN FETCH c.instructor i
         JOIN FETCH i.user
@@ -24,12 +24,13 @@ interface CourseRepository : JpaRepository<Course, Long> {
         WHERE c.academy.id = :academyId
         AND (:status IS NULL OR c.status = :status)
         AND (:keyword IS NULL OR c.title LIKE %:keyword% OR c.description LIKE %:keyword%)
-    """)
+    """,
+    )
     fun findByAcademyIdWithFilters(
         academyId: Long,
         status: CourseStatus?,
         keyword: String?,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<Course>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

@@ -10,17 +10,21 @@ import java.util.Date
 
 @Component
 class JwtTokenProvider(
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
 ) {
     private val key by lazy {
         Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtProperties.secret))
     }
 
-    fun generateAccessToken(userId: Long, email: String): String {
+    fun generateAccessToken(
+        userId: Long,
+        email: String,
+    ): String {
         val now = Date()
         val expiry = Date(now.time + jwtProperties.accessExpiry)
 
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .subject(userId.toString())
             .claim("email", email)
             .issuedAt(now)
@@ -33,7 +37,8 @@ class JwtTokenProvider(
         val now = Date()
         val expiry = Date(now.time + jwtProperties.refreshExpiry)
 
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .subject(userId.toString())
             .issuedAt(now)
             .expiration(expiry)
@@ -41,40 +46,44 @@ class JwtTokenProvider(
             .compact()
     }
 
-    fun getUserIdFromToken(token: String): Long {
-        return parseSubject(token).toLong()
-    }
+    fun getUserIdFromToken(token: String): Long = parseSubject(token).toLong()
 
-    fun validateToken(token: String): Boolean {
-        return try {
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
+    fun validateToken(token: String): Boolean =
+        try {
+            Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
             true
-        } catch (e: ExpiredJwtException) {
+        } catch (ignored: ExpiredJwtException) {
             false
-        } catch (e: JwtException) {
+        } catch (ignored: JwtException) {
             false
         }
-    }
 
-    fun isTokenExpired(token: String): Boolean {
-        return try {
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token)
+    fun isTokenExpired(token: String): Boolean =
+        try {
+            Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
             false
-        } catch (e: ExpiredJwtException) {
+        } catch (ignored: ExpiredJwtException) {
             true
-        } catch (e: JwtException) {
+        } catch (ignored: JwtException) {
             false
         }
-    }
 
     fun getRefreshTokenExpiryMs(): Long = jwtProperties.refreshExpiry
 
-    private fun parseSubject(token: String): String {
-        return Jwts.parser()
+    private fun parseSubject(token: String): String =
+        Jwts
+            .parser()
             .verifyWith(key)
             .build()
             .parseSignedClaims(token)
             .payload
             .subject
-    }
 }

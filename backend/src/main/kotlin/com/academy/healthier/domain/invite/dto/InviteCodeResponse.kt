@@ -12,19 +12,20 @@ data class InviteCodeResponse(
     val currentUses: Int,
     val unlimited: Boolean,
     val expiresAt: LocalDateTime?,
-    val isActive: Boolean
+    val isActive: Boolean,
 ) {
     companion object {
-        fun from(entity: InviteCode): InviteCodeResponse = InviteCodeResponse(
-            id = entity.id,
-            code = entity.code,
-            role = entity.role.name,
-            grantedCredits = entity.grantedCredits,
-            maxUses = entity.maxUses,
-            currentUses = entity.currentUses,
-            unlimited = entity.unlimited,
-            expiresAt = entity.expiresAt,
-            isActive = entity.isActive
-        )
+        fun from(entity: InviteCode): InviteCodeResponse =
+            InviteCodeResponse(
+                id = entity.id,
+                code = entity.code,
+                role = entity.role.name,
+                grantedCredits = entity.grantedCredits,
+                maxUses = entity.maxUses,
+                currentUses = entity.currentUses,
+                unlimited = entity.unlimited,
+                expiresAt = entity.expiresAt,
+                isActive = entity.isActive,
+            )
     }
 }

@@ -18,21 +18,16 @@ class NotificationSetting(
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     val user: User,
-
     @Column(name = "enrollment_notify", nullable = false)
     var enrollmentNotify: Boolean = true,
-
     @Column(name = "notice_notify", nullable = false)
     var noticeNotify: Boolean = true,
-
     @Column(name = "comment_notify", nullable = false)
     var commentNotify: Boolean = true,
-
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,10 +9,12 @@ import java.util.UUID
 
 @Service
 class LocalFileStorageService(
-    private val properties: FileStorageProperties
+    private val properties: FileStorageProperties,
 ) : FileStorageService {
-
-    override fun store(file: MultipartFile, directory: String): StoredFile {
+    override fun store(
+        file: MultipartFile,
+        directory: String,
+    ): StoredFile {
         val uploadPath = Paths.get(properties.uploadDir, directory)
         Files.createDirectories(uploadPath)
 
@@ -28,7 +30,7 @@ class LocalFileStorageService(
             storedFilename = storedFilename,
             filePath = filePath.toString(),
             fileSize = file.size,
-            contentType = file.contentType ?: "application/octet-stream"
+            contentType = file.contentType ?: "application/octet-stream",
         )
     }
 
@@ -37,7 +39,8 @@ class LocalFileStorageService(
         Files.deleteIfExists(path)
     }
 
-    override fun getFilePath(storedFilename: String, directory: String): String {
-        return Paths.get(properties.uploadDir, directory, storedFilename).toString()
-    }
+    override fun getFilePath(
+        storedFilename: String,
+        directory: String,
+    ): String = Paths.get(properties.uploadDir, directory, storedFilename).toString()
 }

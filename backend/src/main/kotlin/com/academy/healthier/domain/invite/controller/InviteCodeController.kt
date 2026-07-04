@@ -24,26 +24,21 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/academies/{academyId}/invite-codes")
 class InviteCodeController(
-    private val inviteCodeService: InviteCodeService
+    private val inviteCodeService: InviteCodeService,
 ) {
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun createInviteCode(
         @PathVariable academyId: Long,
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateInviteCodeRequest
-    ): ApiResponse<InviteCodeResponse> {
-        return ApiResponse.ok(inviteCodeService.createInviteCode(academyId, user.userId, request))
-    }
+        @Valid @RequestBody request: CreateInviteCodeRequest,
+    ): ApiResponse<InviteCodeResponse> = ApiResponse.ok(inviteCodeService.createInviteCode(academyId, user.userId, request))
 
     @GetMapping
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun getInviteCodes(
         @PathVariable academyId: Long,
-        @PageableDefault(size = 20) pageable: Pageable
-    ): ApiResponse<PageResponse<InviteCodeResponse>> {
-        return ApiResponse.ok(inviteCodeService.getInviteCodes(academyId, pageable))
-    }
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): ApiResponse<PageResponse<InviteCodeResponse>> = ApiResponse.ok(inviteCodeService.getInviteCodes(academyId, pageable))
 }

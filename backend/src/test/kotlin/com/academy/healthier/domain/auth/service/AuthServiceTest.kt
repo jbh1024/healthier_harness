@@ -28,7 +28,6 @@ import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
 class AuthServiceTest {
-
     @Mock
     private lateinit var userRepository: UserRepository
 
@@ -89,13 +88,14 @@ class AuthServiceTest {
 
     @Test
     fun `비밀번호 규칙 위반 시 INVALID_PASSWORD_FORMAT 예외 발생`() {
-        val weakPasswords = listOf(
-            "short1!",       // 8자 미만
-            "nouppercase1",  // 특수문자 없음
-            "NoSpecial12",   // 특수문자 없음
-            "nodigits!!",    // 숫자 없음
-            "12345678!"      // 영문 없음
-        )
+        val weakPasswords =
+            listOf(
+                "short1!", // 8자 미만
+                "nouppercase1", // 특수문자 없음
+                "NoSpecial12", // 특수문자 없음
+                "nodigits!!", // 숫자 없음
+                "12345678!", // 영문 없음
+            )
 
         weakPasswords.forEach { pw ->
             val request = SignupRequest(email = "a@b.com", password = pw, name = "홍길동")
@@ -112,8 +112,7 @@ class AuthServiceTest {
 
         assertThatThrownBy {
             authService.login(LoginRequest(email = validEmail, password = validPassword))
-        }
-            .isInstanceOf(BusinessException::class.java)
+        }.isInstanceOf(BusinessException::class.java)
             .extracting("errorCode")
             .isEqualTo(ErrorCode.INVALID_CREDENTIALS)
     }
@@ -126,8 +125,7 @@ class AuthServiceTest {
 
         assertThatThrownBy {
             authService.login(LoginRequest(email = validEmail, password = validPassword))
-        }
-            .isInstanceOf(BusinessException::class.java)
+        }.isInstanceOf(BusinessException::class.java)
             .extracting("errorCode")
             .isEqualTo(ErrorCode.INVALID_CREDENTIALS)
     }
@@ -159,7 +157,7 @@ class AuthServiceTest {
         verify(emailService).send(
             org.mockito.kotlin.eq(validEmail),
             org.mockito.kotlin.any(),
-            org.mockito.kotlin.any()
+            org.mockito.kotlin.any(),
         )
     }
 
@@ -176,11 +174,12 @@ class AuthServiceTest {
     @Test
     fun `유효한 토큰과 비밀번호로 재설정 시 비밀번호 변경`() {
         val user = User(email = validEmail, passwordHash = "old-hash", name = "홍길동")
-        val token = PasswordResetToken(
-            user = user,
-            token = "valid-token",
-            expiresAt = LocalDateTime.now().plusMinutes(10)
-        )
+        val token =
+            PasswordResetToken(
+                user = user,
+                token = "valid-token",
+                expiresAt = LocalDateTime.now().plusMinutes(10),
+            )
         whenever(passwordResetTokenRepository.findByToken("valid-token")).thenReturn(token)
         whenever(passwordEncoder.encode(validPassword)).thenReturn("new-hash")
 
@@ -204,11 +203,12 @@ class AuthServiceTest {
     @Test
     fun `만료된 토큰으로 재설정 시 RESET_TOKEN_EXPIRED 예외 발생`() {
         val user = User(email = validEmail, passwordHash = "hashed", name = "홍길동")
-        val expired = PasswordResetToken(
-            user = user,
-            token = "old-token",
-            expiresAt = LocalDateTime.now().minusMinutes(1)
-        )
+        val expired =
+            PasswordResetToken(
+                user = user,
+                token = "old-token",
+                expiresAt = LocalDateTime.now().minusMinutes(1),
+            )
         whenever(passwordResetTokenRepository.findByToken("old-token")).thenReturn(expired)
 
         assertThatThrownBy { authService.resetPassword("old-token", validPassword) }
@@ -220,12 +220,13 @@ class AuthServiceTest {
     @Test
     fun `이미 사용된 토큰으로 재설정 시 RESET_TOKEN_ALREADY_USED 예외 발생`() {
         val user = User(email = validEmail, passwordHash = "hashed", name = "홍길동")
-        val used = PasswordResetToken(
-            user = user,
-            token = "used-token",
-            expiresAt = LocalDateTime.now().plusMinutes(10),
-            usedAt = LocalDateTime.now().minusMinutes(1)
-        )
+        val used =
+            PasswordResetToken(
+                user = user,
+                token = "used-token",
+                expiresAt = LocalDateTime.now().plusMinutes(10),
+                usedAt = LocalDateTime.now().minusMinutes(1),
+            )
         whenever(passwordResetTokenRepository.findByToken("used-token")).thenReturn(used)
 
         assertThatThrownBy { authService.resetPassword("used-token", validPassword) }

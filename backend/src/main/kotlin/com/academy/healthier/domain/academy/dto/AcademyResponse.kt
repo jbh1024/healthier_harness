@@ -7,15 +7,16 @@ data class AcademyResponse(
     val name: String,
     val description: String?,
     val contactInfo: String?,
-    val isActive: Boolean
+    val isActive: Boolean,
 ) {
     companion object {
-        fun from(academy: Academy): AcademyResponse = AcademyResponse(
-            id = academy.id,
-            name = academy.name,
-            description = academy.description,
-            contactInfo = academy.contactInfo,
-            isActive = academy.isActive
-        )
+        fun from(academy: Academy): AcademyResponse =
+            AcademyResponse(
+                id = academy.id,
+                name = academy.name,
+                description = academy.description,
+                contactInfo = academy.contactInfo,
+                isActive = academy.isActive,
+            )
     }
 }

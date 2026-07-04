@@ -2,10 +2,10 @@ package com.academy.healthier.domain.notification.listener
 
 import com.academy.healthier.domain.academy.repository.AcademyRepository
 import com.academy.healthier.domain.notification.entity.Notification
+import com.academy.healthier.domain.notification.entity.NotificationType
 import com.academy.healthier.domain.notification.event.NotificationEvent
 import com.academy.healthier.domain.notification.repository.NotificationRepository
 import com.academy.healthier.domain.notification.repository.NotificationSettingRepository
-import com.academy.healthier.domain.notification.entity.NotificationType
 import com.academy.healthier.domain.user.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
@@ -17,7 +17,7 @@ class NotificationEventListener(
     private val notificationRepository: NotificationRepository,
     private val notificationSettingRepository: NotificationSettingRepository,
     private val academyRepository: AcademyRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -43,8 +43,8 @@ class NotificationEventListener(
                 title = event.title,
                 message = event.message,
                 referenceType = event.referenceType,
-                referenceId = event.referenceId
-            )
+                referenceId = event.referenceId,
+            ),
         )
 
         // TODO: FCM 푸시 발송 (FcmNotificationService)
@@ -53,14 +53,16 @@ class NotificationEventListener(
 
     private fun isNotificationEnabled(
         setting: com.academy.healthier.domain.notification.entity.NotificationSetting,
-        type: NotificationType
-    ): Boolean = when (type) {
-        NotificationType.ENROLLMENT_REQUESTED,
-        NotificationType.ENROLLMENT_APPROVED,
-        NotificationType.ENROLLMENT_REJECTED,
-        NotificationType.ENROLLMENT_CANCELLED,
-        NotificationType.VACANCY_AVAILABLE -> setting.enrollmentNotify
-        NotificationType.NOTICE_CREATED -> setting.noticeNotify
-        NotificationType.COMMENT_CREATED -> setting.commentNotify
-    }
+        type: NotificationType,
+    ): Boolean =
+        when (type) {
+            NotificationType.ENROLLMENT_REQUESTED,
+            NotificationType.ENROLLMENT_APPROVED,
+            NotificationType.ENROLLMENT_REJECTED,
+            NotificationType.ENROLLMENT_CANCELLED,
+            NotificationType.VACANCY_AVAILABLE,
+            -> setting.enrollmentNotify
+            NotificationType.NOTICE_CREATED -> setting.noticeNotify
+            NotificationType.COMMENT_CREATED -> setting.commentNotify
+        }
 }

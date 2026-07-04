@@ -12,7 +12,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     @ExceptionHandler(BusinessException::class)
@@ -25,8 +24,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Nothing>> {
-        val message = e.bindingResult.fieldErrors
-            .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+        val message =
+            e.bindingResult.fieldErrors
+                .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
         return ResponseEntity
             .badRequest()
             .body(ApiResponse.error(ErrorCode.INVALID_INPUT.code, message))
@@ -34,15 +34,17 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleMessageNotReadable(e: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Nothing>> {
-        val missingField = (e.cause as? MismatchedInputException)
-            ?.path
-            ?.mapNotNull { it.fieldName }
-            ?.joinToString(".")
-        val message = if (missingField.isNullOrBlank()) {
-            "요청 본문이 올바르지 않습니다"
-        } else {
-            "$missingField: 필수 값이 누락되었거나 형식이 올바르지 않습니다"
-        }
+        val missingField =
+            (e.cause as? MismatchedInputException)
+                ?.path
+                ?.mapNotNull { it.fieldName }
+                ?.joinToString(".")
+        val message =
+            if (missingField.isNullOrBlank()) {
+                "요청 본문이 올바르지 않습니다"
+            } else {
+                "$missingField: 필수 값이 누락되었거나 형식이 올바르지 않습니다"
+            }
         log.warn("Unreadable request body: {}", e.message)
         return ResponseEntity
             .badRequest()

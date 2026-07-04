@@ -21,14 +21,13 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/academies")
 class AcademyController(
-    private val academyService: AcademyService
+    private val academyService: AcademyService,
 ) {
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createAcademy(
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateAcademyRequest
+        @Valid @RequestBody request: CreateAcademyRequest,
     ): ApiResponse<AcademyResponse> {
         if (!user.systemAdmin) {
             throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
@@ -37,15 +36,13 @@ class AcademyController(
     }
 
     @GetMapping
-    fun getMyAcademies(@CurrentUser user: UserPrincipal): ApiResponse<List<AcademyResponse>> {
-        return ApiResponse.ok(academyService.getMyAcademies(user.userId, user.systemAdmin))
-    }
+    fun getMyAcademies(
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<List<AcademyResponse>> = ApiResponse.ok(academyService.getMyAcademies(user.userId, user.systemAdmin))
 
     @GetMapping("/{id}")
     fun getAcademyDetail(
         @CurrentUser user: UserPrincipal,
-        @PathVariable id: Long
-    ): ApiResponse<AcademyResponse> {
-        return ApiResponse.ok(academyService.getAcademyDetail(id, user.userId, user.systemAdmin))
-    }
+        @PathVariable id: Long,
+    ): ApiResponse<AcademyResponse> = ApiResponse.ok(academyService.getAcademyDetail(id, user.userId, user.systemAdmin))
 }

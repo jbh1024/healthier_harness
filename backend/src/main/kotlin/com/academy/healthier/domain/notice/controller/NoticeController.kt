@@ -28,54 +28,45 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/academies/{academyId}/notices")
 class NoticeController(
-    private val noticeService: NoticeService
+    private val noticeService: NoticeService,
 ) {
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun createNotice(
         @PathVariable academyId: Long,
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: CreateNoticeRequest
-    ): ApiResponse<NoticeResponse> {
-        return ApiResponse.ok(noticeService.createNotice(academyId, user.userId, request))
-    }
+        @Valid @RequestBody request: CreateNoticeRequest,
+    ): ApiResponse<NoticeResponse> = ApiResponse.ok(noticeService.createNotice(academyId, user.userId, request))
 
     @GetMapping
     @AcademyAuth
     fun getNotices(
         @PathVariable academyId: Long,
-        @PageableDefault(size = 20) pageable: Pageable
-    ): ApiResponse<PageResponse<NoticeResponse>> {
-        return ApiResponse.ok(noticeService.getNotices(academyId, pageable))
-    }
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): ApiResponse<PageResponse<NoticeResponse>> = ApiResponse.ok(noticeService.getNotices(academyId, pageable))
 
     @GetMapping("/{noticeId}")
     @AcademyAuth
     fun getNoticeDetail(
         @PathVariable academyId: Long,
         @PathVariable noticeId: Long,
-        @CurrentUser user: UserPrincipal
-    ): ApiResponse<NoticeDetailResponse> {
-        return ApiResponse.ok(noticeService.getNoticeDetail(noticeId, user.userId))
-    }
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<NoticeDetailResponse> = ApiResponse.ok(noticeService.getNoticeDetail(noticeId, user.userId))
 
     @PutMapping("/{noticeId}")
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun updateNotice(
         @PathVariable academyId: Long,
         @PathVariable noticeId: Long,
-        @Valid @RequestBody request: UpdateNoticeRequest
-    ): ApiResponse<NoticeResponse> {
-        return ApiResponse.ok(noticeService.updateNotice(academyId, noticeId, request))
-    }
+        @Valid @RequestBody request: UpdateNoticeRequest,
+    ): ApiResponse<NoticeResponse> = ApiResponse.ok(noticeService.updateNotice(academyId, noticeId, request))
 
     @DeleteMapping("/{noticeId}")
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN])
     fun deleteNotice(
         @PathVariable academyId: Long,
-        @PathVariable noticeId: Long
+        @PathVariable noticeId: Long,
     ): ApiResponse<Unit> {
         noticeService.deleteNotice(academyId, noticeId)
         return ApiResponse.ok()

@@ -5,13 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface BoardCommentRepository : JpaRepository<BoardComment, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT c FROM BoardComment c
         JOIN FETCH c.author a
         JOIN FETCH a.user
         WHERE c.post.id = :postId
         ORDER BY c.createdAt ASC
-    """)
+    """,
+    )
     fun findByPostIdWithAuthor(postId: Long): List<BoardComment>
 }

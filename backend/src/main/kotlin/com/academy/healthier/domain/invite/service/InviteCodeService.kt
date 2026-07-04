@@ -22,57 +22,74 @@ class InviteCodeService(
     private val inviteCodeRepository: InviteCodeRepository,
     private val academyRepository: AcademyRepository,
     private val academyMemberRepository: AcademyMemberRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
-
     @Transactional
     fun createInviteCode(
         academyId: Long,
         userId: Long,
-        request: CreateInviteCodeRequest
+        request: CreateInviteCodeRequest,
     ): InviteCodeResponse {
-        val academy = academyRepository.findById(academyId)
-            .orElseThrow { BusinessException(ErrorCode.ACADEMY_NOT_FOUND) }
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val academy =
+            academyRepository
+                .findById(academyId)
+                .orElseThrow { BusinessException(ErrorCode.ACADEMY_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         val code = generateUniqueCode()
 
-        val inviteCode = inviteCodeRepository.save(
-            InviteCode(
-                academy = academy,
-                code = code,
-                role = request.role,
-                grantedCredits = request.grantedCredits,
-                maxUses = request.maxUses,
-                unlimited = request.unlimited,
-                expiresAt = request.expiresAt,
-                createdBy = user
+        val inviteCode =
+            inviteCodeRepository.save(
+                InviteCode(
+                    academy = academy,
+                    code = code,
+                    role = request.role,
+                    grantedCredits = request.grantedCredits,
+                    maxUses = request.maxUses,
+                    unlimited = request.unlimited,
+                    expiresAt = request.expiresAt,
+                    createdBy = user,
+                ),
             )
-        )
 
         return InviteCodeResponse.from(inviteCode)
     }
 
-    fun getInviteCodes(academyId: Long, pageable: Pageable): PageResponse<InviteCodeResponse> {
+    fun getInviteCodes(
+        academyId: Long,
+        pageable: Pageable,
+    ): PageResponse<InviteCodeResponse> {
         val page = inviteCodeRepository.findByAcademyId(academyId, pageable)
         return PageResponse.from(page) { InviteCodeResponse.from(it) }
     }
 
     @Transactional
-    fun joinAcademy(userId: Long, code: String) {
-        val inviteCode = inviteCodeRepository.findByCode(code)
-            ?: throw BusinessException(ErrorCode.INVITE_CODE_NOT_FOUND)
+    fun joinAcademy(
+        userId: Long,
+        code: String,
+    ) {
+        val inviteCode =
+            inviteCodeRepository.findByCode(code)
+                ?: throw BusinessException(ErrorCode.INVITE_CODE_NOT_FOUND)
 
         if (!inviteCode.isUsable()) {
-            if (inviteCode.expiresAt != null && java.time.LocalDateTime.now().isAfter(inviteCode.expiresAt)) {
+            if (inviteCode.expiresAt != null &&
+                java.time.LocalDateTime
+                    .now()
+                    .isAfter(inviteCode.expiresAt)
+            ) {
                 throw BusinessException(ErrorCode.INVITE_CODE_EXPIRED)
             }
             throw BusinessException(ErrorCode.INVITE_CODE_EXHAUSTED)
         }
 
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         if (academyMemberRepository.existsByAcademyIdAndUserId(inviteCode.academy.id, userId)) {
             throw BusinessException(ErrorCode.ALREADY_MEMBER)
@@ -83,8 +100,8 @@ class InviteCodeService(
                 academy = inviteCode.academy,
                 user = user,
                 role = inviteCode.role,
-                remainingCredits = inviteCode.grantedCredits
-            )
+                remainingCredits = inviteCode.grantedCredits,
+            ),
         )
 
         inviteCode.use()

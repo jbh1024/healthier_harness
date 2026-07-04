@@ -20,22 +20,27 @@ import java.time.LocalDateTime
 class NotificationService(
     private val notificationRepository: NotificationRepository,
     private val notificationSettingRepository: NotificationSettingRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
-
-    fun getNotifications(userId: Long, pageable: Pageable): PageResponse<NotificationResponse> {
+    fun getNotifications(
+        userId: Long,
+        pageable: Pageable,
+    ): PageResponse<NotificationResponse> {
         val page = notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId, pageable)
         return PageResponse.from(page) { NotificationResponse.from(it) }
     }
 
-    fun getUnreadCount(userId: Long): Long {
-        return notificationRepository.countByRecipientIdAndIsReadFalse(userId)
-    }
+    fun getUnreadCount(userId: Long): Long = notificationRepository.countByRecipientIdAndIsReadFalse(userId)
 
     @Transactional
-    fun markAsRead(notificationId: Long, userId: Long) {
-        val notification = notificationRepository.findById(notificationId)
-            .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
+    fun markAsRead(
+        notificationId: Long,
+        userId: Long,
+    ) {
+        val notification =
+            notificationRepository
+                .findById(notificationId)
+                .orElseThrow { BusinessException(ErrorCode.INVALID_INPUT) }
         if (notification.recipient.id != userId) {
             throw BusinessException(ErrorCode.INSUFFICIENT_ROLE)
         }
@@ -48,21 +53,27 @@ class NotificationService(
     }
 
     fun getSettings(userId: Long): NotificationSettingResponse {
-        val setting = notificationSettingRepository.findByUserId(userId)
-            ?: return NotificationSettingResponse(
-                enrollmentNotify = true,
-                noticeNotify = true,
-                commentNotify = true
-            )
+        val setting =
+            notificationSettingRepository.findByUserId(userId)
+                ?: return NotificationSettingResponse(
+                    enrollmentNotify = true,
+                    noticeNotify = true,
+                    commentNotify = true,
+                )
         return NotificationSettingResponse.from(setting)
     }
 
     @Transactional
-    fun updateSettings(userId: Long, request: UpdateNotificationSettingRequest): NotificationSettingResponse {
+    fun updateSettings(
+        userId: Long,
+        request: UpdateNotificationSettingRequest,
+    ): NotificationSettingResponse {
         var setting = notificationSettingRepository.findByUserId(userId)
         if (setting == null) {
-            val user = userRepository.findById(userId)
-                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+            val user =
+                userRepository
+                    .findById(userId)
+                    .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
             setting = notificationSettingRepository.save(NotificationSetting(user = user))
         }
 

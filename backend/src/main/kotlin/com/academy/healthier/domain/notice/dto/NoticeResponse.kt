@@ -9,17 +9,18 @@ data class NoticeResponse(
     val authorName: String,
     val isImportant: Boolean,
     val viewCount: Int,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 ) {
     companion object {
-        fun from(notice: Notice): NoticeResponse = NoticeResponse(
-            id = notice.id,
-            title = notice.title,
-            authorName = notice.author.user.name,
-            isImportant = notice.isImportant,
-            viewCount = notice.viewCount,
-            createdAt = notice.createdAt
-        )
+        fun from(notice: Notice): NoticeResponse =
+            NoticeResponse(
+                id = notice.id,
+                title = notice.title,
+                authorName = notice.author.user.name,
+                isImportant = notice.isImportant,
+                viewCount = notice.viewCount,
+                createdAt = notice.createdAt,
+            )
     }
 }
 
@@ -30,5 +31,5 @@ data class NoticeDetailResponse(
     val authorName: String,
     val isImportant: Boolean,
     val viewCount: Int,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 )

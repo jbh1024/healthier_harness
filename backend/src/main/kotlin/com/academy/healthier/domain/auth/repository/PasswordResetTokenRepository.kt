@@ -11,5 +11,7 @@ interface PasswordResetTokenRepository : JpaRepository<PasswordResetToken, Long>
 
     @Modifying
     @Query("DELETE FROM PasswordResetToken t WHERE t.user.id = :userId")
-    fun deleteByUserId(@Param("userId") userId: Long)
+    fun deleteByUserId(
+        @Param("userId") userId: Long,
+    )
 }

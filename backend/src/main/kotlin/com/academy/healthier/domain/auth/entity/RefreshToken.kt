@@ -18,15 +18,12 @@ class RefreshToken(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
-
     @Column(nullable = false, unique = true, length = 500)
     val token: String,
-
     @Column(name = "expires_at", nullable = false)
     val expiresAt: LocalDateTime,
-
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

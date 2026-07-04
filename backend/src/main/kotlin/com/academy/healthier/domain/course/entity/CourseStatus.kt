@@ -4,5 +4,5 @@ enum class CourseStatus {
     OPEN,
     IN_PROGRESS,
     COMPLETED,
-    CLOSED
+    CLOSED,
 }

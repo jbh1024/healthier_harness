@@ -16,20 +16,15 @@ class BoardPost(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "academy_id", nullable = false)
     val academy: Academy,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     val author: AcademyMember,
-
     @Column(nullable = false, length = 200)
     var title: String,
-
     @Column(nullable = false, columnDefinition = "TEXT")
     var content: String,
-
     @Column(name = "is_pinned", nullable = false)
     var isPinned: Boolean = false,
-
     @Column(name = "view_count", nullable = false)
-    var viewCount: Int = 0
+    var viewCount: Int = 0,
 ) : BaseEntity()

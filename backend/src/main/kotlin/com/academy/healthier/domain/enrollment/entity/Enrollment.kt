@@ -16,21 +16,18 @@ import jakarta.persistence.UniqueConstraint
 @Entity
 @Table(
     name = "enrollments",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["course_id", "member_id"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["course_id", "member_id"])],
 )
 class Enrollment(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     val course: Course,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: AcademyMember,
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     var status: EnrollmentStatus,
-
     @Column(name = "waitlist_position")
-    var waitlistPosition: Int? = null
+    var waitlistPosition: Int? = null,
 ) : BaseEntity()

@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service
 class ConsoleSmsService : SmsService {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun send(to: String, message: String) {
+    override fun send(
+        to: String,
+        message: String,
+    ) {
         log.info("\n==================== SMS ====================\nTO: {}\n{}\n==============================================", to, message)
     }
 }

@@ -19,18 +19,14 @@ class CourseSchedule(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     val course: Course,
-
     @Column(name = "schedule_date", nullable = false)
     val scheduleDate: LocalDate,
-
     @Column(name = "start_time", nullable = false)
     val startTime: LocalTime,
-
     @Column(name = "end_time", nullable = false)
     val endTime: LocalTime,
-
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

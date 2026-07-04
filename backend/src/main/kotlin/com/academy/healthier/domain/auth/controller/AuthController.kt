@@ -7,14 +7,14 @@ import com.academy.healthier.domain.auth.dto.ForgotPasswordRequest
 import com.academy.healthier.domain.auth.dto.GoogleLoginRequest
 import com.academy.healthier.domain.auth.dto.JoinAcademyRequest
 import com.academy.healthier.domain.auth.dto.LoginRequest
+import com.academy.healthier.domain.auth.dto.PasskeyAuthenticateRequest
+import com.academy.healthier.domain.auth.dto.PasskeyRegisterRequest
+import com.academy.healthier.domain.auth.dto.PasskeyResponse
 import com.academy.healthier.domain.auth.dto.RefreshRequest
 import com.academy.healthier.domain.auth.dto.ResetPasswordRequest
 import com.academy.healthier.domain.auth.dto.SignupRequest
 import com.academy.healthier.domain.auth.dto.TokenResponse
 import com.academy.healthier.domain.auth.service.AuthService
-import com.academy.healthier.domain.auth.dto.PasskeyAuthenticateRequest
-import com.academy.healthier.domain.auth.dto.PasskeyRegisterRequest
-import com.academy.healthier.domain.auth.dto.PasskeyResponse
 import com.academy.healthier.domain.auth.service.GoogleOAuthService
 import com.academy.healthier.domain.auth.service.PasskeyService
 import com.academy.healthier.domain.invite.service.InviteCodeService
@@ -36,27 +36,28 @@ class AuthController(
     private val authService: AuthService,
     private val inviteCodeService: InviteCodeService,
     private val googleOAuthService: GoogleOAuthService,
-    private val passkeyService: PasskeyService
+    private val passkeyService: PasskeyService,
 ) {
-
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    fun signup(@Valid @RequestBody request: SignupRequest): ApiResponse<TokenResponse> {
-        return ApiResponse.ok(authService.signup(request))
-    }
+    fun signup(
+        @Valid @RequestBody request: SignupRequest,
+    ): ApiResponse<TokenResponse> = ApiResponse.ok(authService.signup(request))
 
     @PostMapping("/login")
-    fun login(@Valid @RequestBody request: LoginRequest): ApiResponse<TokenResponse> {
-        return ApiResponse.ok(authService.login(request))
-    }
+    fun login(
+        @Valid @RequestBody request: LoginRequest,
+    ): ApiResponse<TokenResponse> = ApiResponse.ok(authService.login(request))
 
     @PostMapping("/refresh")
-    fun refresh(@Valid @RequestBody request: RefreshRequest): ApiResponse<TokenResponse> {
-        return ApiResponse.ok(authService.refresh(request))
-    }
+    fun refresh(
+        @Valid @RequestBody request: RefreshRequest,
+    ): ApiResponse<TokenResponse> = ApiResponse.ok(authService.refresh(request))
 
     @PostMapping("/logout")
-    fun logout(@CurrentUser user: UserPrincipal): ApiResponse<Unit> {
+    fun logout(
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<Unit> {
         authService.logout(user.userId)
         return ApiResponse.ok()
     }
@@ -64,20 +65,24 @@ class AuthController(
     @PostMapping("/join-academy")
     fun joinAcademy(
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: JoinAcademyRequest
+        @Valid @RequestBody request: JoinAcademyRequest,
     ): ApiResponse<Unit> {
         inviteCodeService.joinAcademy(user.userId, request.inviteCode)
         return ApiResponse.ok()
     }
 
     @PostMapping("/forgot-password")
-    fun forgotPassword(@Valid @RequestBody request: ForgotPasswordRequest): ApiResponse<Unit> {
+    fun forgotPassword(
+        @Valid @RequestBody request: ForgotPasswordRequest,
+    ): ApiResponse<Unit> {
         authService.requestPasswordReset(request.email)
         return ApiResponse.ok()
     }
 
     @PostMapping("/reset-password")
-    fun resetPassword(@Valid @RequestBody request: ResetPasswordRequest): ApiResponse<Unit> {
+    fun resetPassword(
+        @Valid @RequestBody request: ResetPasswordRequest,
+    ): ApiResponse<Unit> {
         authService.resetPassword(request.token, request.newPassword)
         return ApiResponse.ok()
     }
@@ -85,28 +90,30 @@ class AuthController(
     @PutMapping("/password")
     fun changePassword(
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: ChangePasswordRequest
+        @Valid @RequestBody request: ChangePasswordRequest,
     ): ApiResponse<Unit> {
         authService.changePassword(user.userId, request.currentPassword, request.newPassword)
         return ApiResponse.ok()
     }
 
     @PostMapping("/google")
-    fun googleLogin(@Valid @RequestBody request: GoogleLoginRequest): ApiResponse<TokenResponse> {
-        return ApiResponse.ok(googleOAuthService.loginWithGoogle(request.idToken))
-    }
+    fun googleLogin(
+        @Valid @RequestBody request: GoogleLoginRequest,
+    ): ApiResponse<TokenResponse> = ApiResponse.ok(googleOAuthService.loginWithGoogle(request.idToken))
 
     @PostMapping("/google/link")
     fun linkGoogle(
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: GoogleLoginRequest
+        @Valid @RequestBody request: GoogleLoginRequest,
     ): ApiResponse<Unit> {
         googleOAuthService.linkGoogleAccount(user.userId, request.idToken)
         return ApiResponse.ok()
     }
 
     @DeleteMapping("/google/link")
-    fun unlinkGoogle(@CurrentUser user: UserPrincipal): ApiResponse<Unit> {
+    fun unlinkGoogle(
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<Unit> {
         googleOAuthService.unlinkGoogleAccount(user.userId)
         return ApiResponse.ok()
     }
@@ -115,22 +122,18 @@ class AuthController(
     @ResponseStatus(HttpStatus.CREATED)
     fun registerPasskey(
         @CurrentUser user: UserPrincipal,
-        @Valid @RequestBody request: PasskeyRegisterRequest
-    ): ApiResponse<PasskeyResponse> {
-        return ApiResponse.ok(passkeyService.register(user.userId, request))
-    }
+        @Valid @RequestBody request: PasskeyRegisterRequest,
+    ): ApiResponse<PasskeyResponse> = ApiResponse.ok(passkeyService.register(user.userId, request))
 
     @PostMapping("/passkey/authenticate")
     fun authenticatePasskey(
-        @Valid @RequestBody request: PasskeyAuthenticateRequest
-    ): ApiResponse<TokenResponse> {
-        return ApiResponse.ok(passkeyService.authenticate(request))
-    }
+        @Valid @RequestBody request: PasskeyAuthenticateRequest,
+    ): ApiResponse<TokenResponse> = ApiResponse.ok(passkeyService.authenticate(request))
 
     @DeleteMapping("/passkey/{passkeyId}")
     fun deletePasskey(
         @CurrentUser user: UserPrincipal,
-        @PathVariable passkeyId: Long
+        @PathVariable passkeyId: Long,
     ): ApiResponse<Unit> {
         passkeyService.deletePasskey(passkeyId, user.userId)
         return ApiResponse.ok()

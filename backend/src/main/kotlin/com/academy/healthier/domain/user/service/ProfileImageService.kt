@@ -12,20 +12,24 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional
 class ProfileImageService(
     private val userRepository: UserRepository,
-    private val fileStorageService: FileStorageService
+    private val fileStorageService: FileStorageService,
 ) {
-
     companion object {
         private const val PROFILE_DIR = "profiles"
         private val ALLOWED_TYPES = setOf("image/jpeg", "image/png")
         private const val MAX_SIZE = 5L * 1024 * 1024 // 5MB
     }
 
-    fun uploadProfileImage(userId: Long, file: MultipartFile): String {
+    fun uploadProfileImage(
+        userId: Long,
+        file: MultipartFile,
+    ): String {
         validateFile(file)
 
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         // 기존 이미지 삭제
         user.profileImageUrl?.let { fileStorageService.delete(it) }
@@ -40,8 +44,10 @@ class ProfileImageService(
     }
 
     fun deleteProfileImage(userId: Long) {
-        val user = userRepository.findById(userId)
-            .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
+        val user =
+            userRepository
+                .findById(userId)
+                .orElseThrow { BusinessException(ErrorCode.USER_NOT_FOUND) }
 
         user.profileImageUrl?.let { fileStorageService.delete(it) }
         user.thumbnailImageUrl?.let { fileStorageService.delete(it) }

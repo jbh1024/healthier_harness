@@ -5,16 +5,16 @@ data class DashboardResponse(
     val totalCourses: Long,
     val activeEnrollments: Long,
     val instructorStats: List<InstructorStat>,
-    val studentStats: List<StudentStat>
+    val studentStats: List<StudentStat>,
 )
 
 data class InstructorStat(
     val instructorName: String,
     val courseCount: Long,
-    val totalEnrollments: Long
+    val totalEnrollments: Long,
 )
 
 data class StudentStat(
     val studentName: String,
-    val enrolledCourses: Long
+    val enrolledCourses: Long,
 )

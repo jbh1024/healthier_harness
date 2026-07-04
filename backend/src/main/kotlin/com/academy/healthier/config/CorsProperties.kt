@@ -9,5 +9,5 @@ data class CorsProperties(
     val allowedMethods: List<String> = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"),
     val allowedHeaders: List<String> = listOf("*"),
     val allowCredentials: Boolean = true,
-    val maxAge: Long = 3600
+    val maxAge: Long = 3600,
 )

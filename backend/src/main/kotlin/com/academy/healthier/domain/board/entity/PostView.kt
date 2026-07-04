@@ -16,19 +16,17 @@ import java.time.LocalDateTime
 @Entity
 @Table(
     name = "post_views",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["post_id", "user_id"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["post_id", "user_id"])],
 )
 class PostView(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     val post: BoardPost,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
-
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

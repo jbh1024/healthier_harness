@@ -26,56 +26,45 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/academies/{academyId}")
 class EnrollmentController(
-    private val enrollmentService: EnrollmentService
+    private val enrollmentService: EnrollmentService,
 ) {
-
     @PostMapping("/courses/{courseId}/enrollments")
     @ResponseStatus(HttpStatus.CREATED)
     @AcademyAuth(roles = [MemberRole.STUDENT])
     fun enroll(
         @PathVariable academyId: Long,
         @PathVariable courseId: Long,
-        @CurrentUser user: UserPrincipal
-    ): ApiResponse<EnrollmentResponse> {
-        return ApiResponse.ok(enrollmentService.enroll(academyId, courseId, user.userId))
-    }
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<EnrollmentResponse> = ApiResponse.ok(enrollmentService.enroll(academyId, courseId, user.userId))
 
     @GetMapping("/courses/{courseId}/enrollments")
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN, MemberRole.INSTRUCTOR])
     fun getCourseEnrollments(
         @PathVariable academyId: Long,
         @PathVariable courseId: Long,
-        @PageableDefault(size = 20) pageable: Pageable
-    ): ApiResponse<PageResponse<EnrollmentDetailResponse>> {
-        return ApiResponse.ok(enrollmentService.getCourseEnrollments(courseId, pageable))
-    }
+        @PageableDefault(size = 20) pageable: Pageable,
+    ): ApiResponse<PageResponse<EnrollmentDetailResponse>> = ApiResponse.ok(enrollmentService.getCourseEnrollments(courseId, pageable))
 
     @PutMapping("/enrollments/{enrollmentId}/approval")
     @AcademyAuth(roles = [MemberRole.ACADEMY_ADMIN, MemberRole.INSTRUCTOR])
     fun processApproval(
         @PathVariable academyId: Long,
         @PathVariable enrollmentId: Long,
-        @Valid @RequestBody request: EnrollmentApprovalRequest
-    ): ApiResponse<EnrollmentResponse> {
-        return ApiResponse.ok(enrollmentService.processApproval(enrollmentId, request))
-    }
+        @Valid @RequestBody request: EnrollmentApprovalRequest,
+    ): ApiResponse<EnrollmentResponse> = ApiResponse.ok(enrollmentService.processApproval(enrollmentId, request))
 
     @GetMapping("/enrollments/me")
     @AcademyAuth
     fun getMyEnrollments(
         @PathVariable academyId: Long,
-        @CurrentUser user: UserPrincipal
-    ): ApiResponse<List<EnrollmentResponse>> {
-        return ApiResponse.ok(enrollmentService.getMyEnrollments(academyId, user.userId))
-    }
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<List<EnrollmentResponse>> = ApiResponse.ok(enrollmentService.getMyEnrollments(academyId, user.userId))
 
     @PutMapping("/enrollments/{enrollmentId}/cancel")
     @AcademyAuth
     fun cancelEnrollment(
         @PathVariable academyId: Long,
         @PathVariable enrollmentId: Long,
-        @CurrentUser user: UserPrincipal
-    ): ApiResponse<EnrollmentResponse> {
-        return ApiResponse.ok(enrollmentService.cancelEnrollment(enrollmentId, user.userId))
-    }
+        @CurrentUser user: UserPrincipal,
+    ): ApiResponse<EnrollmentResponse> = ApiResponse.ok(enrollmentService.cancelEnrollment(enrollmentId, user.userId))
 }

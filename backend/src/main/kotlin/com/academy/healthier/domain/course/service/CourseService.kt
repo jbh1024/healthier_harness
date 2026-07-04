@@ -27,27 +27,34 @@ class CourseService(
     private val courseRepository: CourseRepository,
     private val courseScheduleRepository: CourseScheduleRepository,
     private val academyRepository: AcademyRepository,
-    private val academyMemberRepository: AcademyMemberRepository
+    private val academyMemberRepository: AcademyMemberRepository,
 ) {
-
     @Transactional
-    fun createCourse(academyId: Long, request: CreateCourseRequest): CourseResponse {
-        val academy = academyRepository.findById(academyId)
-            .orElseThrow { BusinessException(ErrorCode.ACADEMY_NOT_FOUND) }
+    fun createCourse(
+        academyId: Long,
+        request: CreateCourseRequest,
+    ): CourseResponse {
+        val academy =
+            academyRepository
+                .findById(academyId)
+                .orElseThrow { BusinessException(ErrorCode.ACADEMY_NOT_FOUND) }
 
-        val instructor = academyMemberRepository.findById(request.instructorMemberId)
-            .orElseThrow { BusinessException(ErrorCode.NOT_ACADEMY_MEMBER) }
+        val instructor =
+            academyMemberRepository
+                .findById(request.instructorMemberId)
+                .orElseThrow { BusinessException(ErrorCode.NOT_ACADEMY_MEMBER) }
 
-        val course = courseRepository.save(
-            Course(
-                academy = academy,
-                instructor = instructor,
-                title = request.title,
-                description = request.description,
-                maxCapacity = request.maxCapacity,
-                enrollmentType = request.enrollmentType
+        val course =
+            courseRepository.save(
+                Course(
+                    academy = academy,
+                    instructor = instructor,
+                    title = request.title,
+                    description = request.description,
+                    maxCapacity = request.maxCapacity,
+                    enrollmentType = request.enrollmentType,
+                ),
             )
-        )
 
         return CourseResponse.from(course)
     }
@@ -56,22 +63,27 @@ class CourseService(
         academyId: Long,
         status: CourseStatus?,
         keyword: String?,
-        pageable: Pageable
+        pageable: Pageable,
     ): PageResponse<CourseResponse> {
         val page = courseRepository.findByAcademyIdWithFilters(academyId, status, keyword, pageable)
         return PageResponse.from(page) { CourseResponse.from(it) }
     }
 
     fun getCourseDetail(courseId: Long): CourseResponse {
-        val course = courseRepository.findByIdWithInstructor(courseId)
-            ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+        val course =
+            courseRepository.findByIdWithInstructor(courseId)
+                ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
         return CourseResponse.from(course)
     }
 
     @Transactional
-    fun updateCourse(courseId: Long, request: UpdateCourseRequest): CourseResponse {
-        val course = courseRepository.findByIdWithInstructor(courseId)
-            ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+    fun updateCourse(
+        courseId: Long,
+        request: UpdateCourseRequest,
+    ): CourseResponse {
+        val course =
+            courseRepository.findByIdWithInstructor(courseId)
+                ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
         request.title?.let { course.title = it }
         request.description?.let { course.description = it }
         request.maxCapacity?.let { course.maxCapacity = it }
@@ -80,8 +92,10 @@ class CourseService(
 
     @Transactional
     fun deleteCourse(courseId: Long) {
-        val course = courseRepository.findById(courseId)
-            .orElseThrow { BusinessException(ErrorCode.COURSE_NOT_FOUND) }
+        val course =
+            courseRepository
+                .findById(courseId)
+                .orElseThrow { BusinessException(ErrorCode.COURSE_NOT_FOUND) }
         if (course.currentEnrollment > 0) {
             throw BusinessException(ErrorCode.INVALID_INPUT)
         }
@@ -89,39 +103,54 @@ class CourseService(
     }
 
     @Transactional
-    fun updateCourseStatus(courseId: Long, status: CourseStatus): CourseResponse {
-        val course = courseRepository.findByIdWithInstructor(courseId)
-            ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+    fun updateCourseStatus(
+        courseId: Long,
+        status: CourseStatus,
+    ): CourseResponse {
+        val course =
+            courseRepository.findByIdWithInstructor(courseId)
+                ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
         course.status = status
         return CourseResponse.from(course)
     }
 
     @Transactional
-    fun createSchedules(courseId: Long, request: CreateScheduleRequest): List<CourseScheduleResponse> {
-        val course = courseRepository.findById(courseId)
-            .orElseThrow { BusinessException(ErrorCode.COURSE_NOT_FOUND) }
+    fun createSchedules(
+        courseId: Long,
+        request: CreateScheduleRequest,
+    ): List<CourseScheduleResponse> {
+        val course =
+            courseRepository
+                .findById(courseId)
+                .orElseThrow { BusinessException(ErrorCode.COURSE_NOT_FOUND) }
 
         val dates = resolveScheduleDates(request)
 
-        val schedules = dates.map { date ->
-            CourseSchedule(
-                course = course,
-                scheduleDate = date,
-                startTime = request.startTime,
-                endTime = request.endTime
-            )
-        }
+        val schedules =
+            dates.map { date ->
+                CourseSchedule(
+                    course = course,
+                    scheduleDate = date,
+                    startTime = request.startTime,
+                    endTime = request.endTime,
+                )
+            }
 
-        return courseScheduleRepository.saveAll(schedules)
+        return courseScheduleRepository
+            .saveAll(schedules)
             .map { CourseScheduleResponse.from(it) }
     }
 
-    fun getCalendar(academyId: Long, yearMonth: String): List<CourseScheduleResponse> {
+    fun getCalendar(
+        academyId: Long,
+        yearMonth: String,
+    ): List<CourseScheduleResponse> {
         val ym = YearMonth.parse(yearMonth)
         val startDate = ym.atDay(1)
         val endDate = ym.atEndOfMonth()
 
-        return courseScheduleRepository.findByAcademyIdAndDateRange(academyId, startDate, endDate)
+        return courseScheduleRepository
+            .findByAcademyIdAndDateRange(academyId, startDate, endDate)
             .map { CourseScheduleResponse.from(it) }
     }
 

@@ -8,16 +8,20 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 
 interface BoardPostRepository : JpaRepository<BoardPost, Long> {
-
-    @Query("""
+    @Query(
+        """
         SELECT p FROM BoardPost p
         JOIN FETCH p.author a
         JOIN FETCH a.user
         WHERE p.academy.id = :academyId
         ORDER BY p.isPinned DESC, p.createdAt DESC
     """,
-        countQuery = "SELECT COUNT(p) FROM BoardPost p WHERE p.academy.id = :academyId")
-    fun findByAcademyId(academyId: Long, pageable: Pageable): Page<BoardPost>
+        countQuery = "SELECT COUNT(p) FROM BoardPost p WHERE p.academy.id = :academyId",
+    )
+    fun findByAcademyId(
+        academyId: Long,
+        pageable: Pageable,
+    ): Page<BoardPost>
 
     @Query("SELECT p FROM BoardPost p JOIN FETCH p.author a JOIN FETCH a.user WHERE p.id = :postId")
     fun findByIdWithAuthor(postId: Long): BoardPost?

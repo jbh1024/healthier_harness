@@ -8,34 +8,48 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface EnrollmentRepository : JpaRepository<Enrollment, Long> {
+    fun existsByCourseIdAndMemberId(
+        courseId: Long,
+        memberId: Long,
+    ): Boolean
 
-    fun existsByCourseIdAndMemberId(courseId: Long, memberId: Long): Boolean
-
-    @Query("""
+    @Query(
+        """
         SELECT e FROM Enrollment e
         JOIN FETCH e.course c
         JOIN FETCH c.instructor i
         JOIN FETCH i.user
         WHERE e.member.id = :memberId
         ORDER BY e.createdAt DESC
-    """)
+    """,
+    )
     fun findByMemberIdWithCourse(memberId: Long): List<Enrollment>
 
-    @Query("""
+    @Query(
+        """
         SELECT e FROM Enrollment e
         JOIN FETCH e.member m
         JOIN FETCH m.user
         WHERE e.course.id = :courseId
     """,
-        countQuery = "SELECT COUNT(e) FROM Enrollment e WHERE e.course.id = :courseId")
-    fun findByCourseIdWithMember(courseId: Long, pageable: Pageable): Page<Enrollment>
+        countQuery = "SELECT COUNT(e) FROM Enrollment e WHERE e.course.id = :courseId",
+    )
+    fun findByCourseIdWithMember(
+        courseId: Long,
+        pageable: Pageable,
+    ): Page<Enrollment>
 
-    fun countByCourseIdAndStatus(courseId: Long, status: EnrollmentStatus): Int
+    fun countByCourseIdAndStatus(
+        courseId: Long,
+        status: EnrollmentStatus,
+    ): Int
 
-    @Query("""
+    @Query(
+        """
         SELECT e FROM Enrollment e
         WHERE e.course.id = :courseId AND e.status = 'WAITLISTED'
         ORDER BY e.waitlistPosition ASC
-    """)
+    """,
+    )
     fun findWaitlistedByCourseId(courseId: Long): List<Enrollment>
 }
